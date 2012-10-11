@@ -5,6 +5,7 @@ import numpy as np
 import scipy.weave
 
 from .inputs import mean_std_weighted
+from .spearmanr_by_fast import spearmanr_by
 
 def pearsonr_weighted(x, y, weights=None):
     """Weighted Pearson correlation coefficient.

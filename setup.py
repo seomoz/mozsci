@@ -21,10 +21,21 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from distutils.core import setup
+from distutils.extension import Extension
+from Cython.Distutils import build_ext
+import numpy
+
+
+# for fast spearman
+ext_modules = [Extension('mozsci.spearmanr_by_fast',
+    sources=["mozsci/spearmanr_by_fast.pyx", "mozsci/cspearmanr_by_fast.cc"],
+    include_dirs = [numpy.get_include()],
+    language="c++",
+    )]
+
+
+
 
 setup(
     name             = 'mozsci',
@@ -36,7 +47,8 @@ setup(
     packages         = ['mozsci', 'mozsci.models'],
     license          = 'MIT',
     platforms        = 'Posix; MacOS X',
-    #test_suite       = 'tests.testReppy',
+    cmdclass         = {'build_ext': build_ext},
+    ext_modules      = ext_modules,
     classifiers      = [
         'License :: OSI Approved :: MIT License',
         'Development Status :: 2 - Pre-Alpha',
