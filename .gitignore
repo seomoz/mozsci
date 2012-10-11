@@ -1,0 +1,6 @@
+build/
+dist/
+mozsci.egg-info/
+
+*.pyc
+
