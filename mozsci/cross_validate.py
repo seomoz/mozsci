@@ -55,6 +55,7 @@ def plot_cv_errors(errors, model, regparm, fignum):
     regparm = the name of regularization parameter, e.g. "lam"
     """
     import pylab as plt
+    import re
 
     # accumulate the erorrs + the regularization parameters
     # errors_plot = [train, test] list
