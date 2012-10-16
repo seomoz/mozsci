@@ -107,7 +107,7 @@ X[test_indices, :], self.y[test_indices], self.weights[train_indices], self.weig
 
         # train
         try:
-            model.fit(X, y, weights)
+            model.fit(X, y, weights=weights)
         except TypeError:   # model doesn't do weighted learning
             model.fit(X, y)
 
