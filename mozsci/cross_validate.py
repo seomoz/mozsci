@@ -66,7 +66,7 @@ def plot_cv_errors(errors, model, regparm, fignum):
         if re.search(model, desc):
             # it corresponds to this model
             # get the regularization parameter
-            c = float(re.search("'%s':\s+([\.0-9-e]+)}" % regparm, desc).group(1))
+            c = float(re.search("'%s':\s+([\.0-9-e]+)(}|,)" % regparm, desc).group(1))
             reg.append(c)
             errors_plot.append([err['train'], err['test']])
 
