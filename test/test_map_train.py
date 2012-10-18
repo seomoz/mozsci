@@ -8,11 +8,6 @@ from mozsci.cross_validate import cv_kfold
 from mozsci.models import LogisticRegression
 
 
-class t:
-    pass
-
-self = t()
-
 class DataTest(unittest.TestCase):
     def setUp(self):
         np.random.seed(5)
