@@ -44,9 +44,11 @@ class PyBrainNN(object):
         # loss is SUM(predy - y)**2 over the data set
         err = net_pred - y
         loss = np.sum(err**2) + 0.5 * self.lam * np.sum(self.net.params[:] ** 2)
+        loss /= X.shape[0]
 
         # gradient = 2 * (predy - y) * dnet/dparam
         gradient = 2 * np.dot(err.reshape(1,-1), net_grad) + self.lam * self.net.params[:]
+        gradient /= X.shape[0]
 
         return loss, gradient
 
