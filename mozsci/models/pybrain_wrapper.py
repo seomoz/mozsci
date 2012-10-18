@@ -5,6 +5,9 @@ from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.datasets import SupervisedDataSet
 import numpy as np
 
+class PyBrainNNError(Exception):
+    pass
+
 class PyBrainNN(object):
 
     def __init__(self, errtol=1.0e-10, maxiterations=200, learning_rate=1.0, lam=1.0, args=(), kwargs={}):
@@ -60,15 +63,30 @@ class PyBrainNN(object):
         err = 1e20
         err_delta = 1e20
         iteration = 0
+        nerror_decrease = 0
         while(err_delta > self.errtol and iteration < self.maxiterations):
             err_new, grad = self._r2_loss_gradient(X, y)
             err_delta = abs(err_new - err)
-            err = err_new
-            iteration += 1
 
-            # update the params
-            self.net.params[:] = self.net.params[:] - self.learning_rate * grad
-            print("Iteration %s, error=%s" % (iteration, err))
+            # update the params if error decreased
+            # otherwise, decrease learning rate
+            if err_new <= err:
+                self.net.params[:] = self.net.params[:] - self.learning_rate * grad
+                err = err_new
+                iteration += 1
+                print("Iteration %s, error=%s" % (iteration, err))
+            else:
+                # error increased.  we must have too large of a learning rate
+                # decrease it and try again
+                self.learning_rate = self.learning_rate * 0.95
+                nerror_decrease += 1
+                print("Iteration %s, decreased learning rate to %s, decrease #" % (iteration, self.learning_rate, nerror_decrease))
+
+                # perturb the parameters a little
+                max_param = self.params[:].max()
+                self.params[:] = (np.random.rand(self._nparams) - 0.5) * 2 * max_param * 0.05 + self.params[:]
+                if nerror_decrease == 100:
+                    raise PyBrainNNError("Decreased learning rate 100 times and error still increasing")
 
 
     def predict(self, X):
