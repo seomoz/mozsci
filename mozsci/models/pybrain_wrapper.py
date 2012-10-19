@@ -106,33 +106,46 @@ class PyBrainNN(object):
     def fit(self, X, y):
         """Train the network"""
         # batch gradient descent
-        err = 1e20
+
+        # compute the initial error
+        err, grad = self._r2_loss_gradient(X, y)
+
         err_delta = 1e20
         iteration = 0
         nerror_decrease = 0
-        while(err_delta > self._training_params['errtol'] and iteration < self._training_params['maxiterations']):
-            err_new, grad = self._r2_loss_gradient(X, y)
-            err_delta = abs(err_new - err)
 
-            # update the params if error decreased
-            # otherwise, decrease learning rate
+        while(err_delta > self._training_params['errtol'] and iteration < self._training_params['maxiterations']):
+
+            # take a gradient step
+            params_old = self.net.params.copy()
+            self.net.params[:] = self.net.params[:] - self._training_params['learning_rate'] * grad
+
+            # check the error
+            err_new, grad_new = self._r2_loss_gradient(X, y)
             if err_new <= err:
-                self.net.params[:] = self.net.params[:] - self._training_params['learning_rate'] * grad
+                # error decreased
+                # keep the parameter updates, set for next iteration
+                err_delta = abs(err_new - err)
                 err = err_new
+                grad = grad_new
                 iteration += 1
                 print("Iteration %s, error=%s" % (iteration, err))
+
             else:
                 # error increased.  we must have too large of a learning rate
                 # decrease it and try again
-                self.learning_rate = self.learning_rate * 0.95
+                self._training_params['learning_rate'] = self._training_params['learning_rate'] * 0.95
                 nerror_decrease += 1
-                print("Iteration %s, decreased learning rate to %s, decrease #" % (iteration, self.learning_rate, nerror_decrease))
+                self.net.params[:] = params_old
+                
+                print("Iteration %s, decreased learning rate to %s, decrease # %s" % (iteration, self._training_params['learning_rate'], nerror_decrease))
 
                 # perturb the parameters a little
-                max_param = self.params[:].max()
-                self.params[:] = (np.random.rand(self._nparams) - 0.5) * 2 * max_param * 0.05 + self.params[:]
+                #max_param = self.net.params[:].max()
+                #self.net.params[:] = (np.random.rand(self._nparams) - 0.5) * 2 * max_param * 0.05 + self.net.params[:]
                 if nerror_decrease == 100:
                     raise PyBrainNNError("Decreased learning rate 100 times and error still increasing")
+
 
     def predict(self, X):
         """Do predictions"""

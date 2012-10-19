@@ -78,8 +78,6 @@ class LogisticRegression(object):
         """Return sigma(x) = 1.0 / (1.0 + exp(-x * w - b))
         X = N x (nvars)
         
-        Computes sigma(w * x) for each data point
-        
         Returns a (N, ) array"""
         return np.minimum(np.maximum(1.0 / (1.0 + np.exp(-b - np.sum(w * x, axis=1))), 1.0e-12), 1 - 1.0e-12)
 
