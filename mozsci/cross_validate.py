@@ -1,6 +1,7 @@
 """Things to do cross validation"""
 
 import numpy as np
+from .map_train import TrainModelCV
 
 def cv_kfold(ntrain, nk, seed=None):
     """k-fold cross validation
@@ -82,5 +83,43 @@ def plot_cv_errors(errors, model, regparm, fignum):
     plt.grid(True)
     fig.show()
 
+
+def learning_curves(model_description[None, None, '', (), {}], X, y, kfolds=5, fignum=1):
+    """Plot learning curves
+
+    uses k-fold cross validation for 25, 50, 75, 100% of data
+    
+    model_description as input to TrainModelCV the model.  This defines
+    the model to check.
+    kfolds = use this many folds
+    fignum = plot in this figure number
+    """
+    # use TrainModelCV to do so
+
+    indices = np.arange(X.shape[0])
+    np.random.shuffle(indices)
+
+    pct_data = np.array([0.25, 0.5, 0.75, 1.0])
+    npct = len(pct_data)
+    ndata = (pct_data * X.shape[0]).astype(np.int)
+    test_errors = []
+    train_errors = []
+    for N in ndata:
+        folds = cv_kfold(N, kfolds) 
+        trainer = TrainModelCV(model_description,
+                    X=X[indices][:N, :], y=y[indices][:N],
+                    folds=folds)
+        errors = trainer.run()
+        test_errors.append(errors[errors.keys()[0]]['test'])
+        train_errors.append(errors[errors.keys()[0]]['train'])
+
+    fig = plt.figure(fignum)
+    fig.clf()
+    plt.plot(pct_data, train_errors, label='train')
+    plt.plot(pct_data, test_errors, label='test')
+    plt.xlabel("Percent of data")
+    plt.legend()
+    plt.ylabel(model_description[1].__name__)
+    fig.show()
 
 
