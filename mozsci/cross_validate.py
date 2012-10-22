@@ -84,7 +84,7 @@ def plot_cv_errors(errors, model, regparm, fignum):
     fig.show()
 
 
-def learning_curves(model_description[None, None, '', (), {}], X, y, kfolds=5, fignum=1):
+def learning_curves(model_description, X, y, kfolds=5, fignum=1):
     """Plot learning curves
 
     uses k-fold cross validation for 25, 50, 75, 100% of data
@@ -95,6 +95,7 @@ def learning_curves(model_description[None, None, '', (), {}], X, y, kfolds=5, f
     fignum = plot in this figure number
     """
     # use TrainModelCV to do so
+    import pylab as plt
 
     indices = np.arange(X.shape[0])
     np.random.shuffle(indices)
