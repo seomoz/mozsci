@@ -84,7 +84,7 @@ class PyBrainNN(object):
         model_json is either a dictionary with the required model attributes,
         or a file name with this dictionary deserialized into a json string"""
         if isinstance(model_json, basestring):
-            with open(filename, 'r') as f:
+            with open(model_json, 'r') as f:
                 model_json = json.load(f)
 
         # need keyword args to be strings in Python 2.6 :-/
