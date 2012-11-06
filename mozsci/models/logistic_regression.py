@@ -1,6 +1,5 @@
 
 import numpy as np
-from scipy.optimize import fmin_bfgs
 import json
 
 class LogisticRegression(object):
@@ -20,7 +19,7 @@ class LogisticRegression(object):
         """
         return LogisticRegression._sigmoid(x, self.b, self.w)
 
-    def fit(self, x, y, weights=None):
+    def fit(self, x, y, weights=None, **kwargs):
         """Train the model.
 
         x = (Nobs, nvars)
@@ -28,7 +27,13 @@ class LogisticRegression(object):
 
         Bias term automatically added
 
-        Returns the loss"""
+        Returns the loss
+
+        **kwags passed into fmin_l_bfgs_b"""
+        from scipy.optimize import fmin_l_bfgs_b
+
+        assert len(y) == x.shape[0]
+        assert weights is None or len(weights) == x.shape[0]
 
         y0 = y == 0
         x0 = x[y0, :]
@@ -40,16 +45,14 @@ class LogisticRegression(object):
             loss_weights = [weights[y0], weights[~y0]]
 
         def _loss_for_optimize(params):
-            return LogisticRegression._loss(x0, x1, params[0], params[1:], self.lam, loss_weights)
-        def _gradient_for_optimize(params):
-            return LogisticRegression._gradient_loss(x, y, params[0], params[1:], self.lam, weights)
+            return LogisticRegression._loss_gradient(x0, x1, params[0], params[1:], self.lam, loss_weights)
 
-        params_opt = fmin_bfgs(_loss_for_optimize, np.zeros(1 + x.shape[1]), fprime=_gradient_for_optimize, maxiter=200)
+        params0 = np.zeros(1 + x.shape[1])
+        params_opt, loss_opt, info_opt = fmin_l_bfgs_b(_loss_for_optimize, params0, disp=0, **kwargs)
+        print("%s funcalls: %s" % (info_opt['task'], info_opt['funcalls']))
 
         self.b = params_opt[0]
         self.w = params_opt[1:]
-
-        return _loss_for_optimize(params_opt)
 
     def save_model(self, model_file):
         """Serialize model to model_file"""
@@ -82,8 +85,8 @@ class LogisticRegression(object):
         return np.minimum(np.maximum(1.0 / (1.0 + np.exp(-b - np.sum(w * x, axis=1))), 1.0e-12), 1 - 1.0e-12)
 
     @staticmethod
-    def _loss(x0, x1, b, w, lam, weights=None):
-        """Return loss function at x.
+    def _loss_gradient(x0, x1, b, w, lam, weights=None):
+        """Return loss/gradient function at x.
         x0 = (N0, nvars) numpy array of x where y == 0
         x1 = (N1, nvars) numpy array of x where y == 1
 
@@ -94,41 +97,34 @@ class LogisticRegression(object):
             observation's contribution to error.
             first entry corresponds to x0, second to x1
         """
-        loss = 0.5 * lam * np.sum(w ** 2)
-        if weights is None:
-            loss += -np.sum(np.log(LogisticRegression._sigmoid(x1, b, w))) - np.sum(np.log(1.0 - LogisticRegression._sigmoid(x0, b, w)))
-        else:
-            loss += -np.sum(weights[1] * np.log(LogisticRegression._sigmoid(x1, b, w))) - np.sum(weights[0] * np.log(1.0 - LogisticRegression._sigmoid(x0, b, w)))
-        return loss
-
-    @staticmethod
-    def _gradient_loss(x, y, b, w, lam, weights=None):
-        """Return the gradient of the loss.
-
-           x0 = (N, nvars) numpy array of x
-           y = 0, 1 prediction
-
-           gradient = logistic gradient loss + self.lam * w
-                logistic loss gradient = sum_data (sigmoid(x) - y) * x
-
-            weights = if provided an (N, 2) array to add in to each
-                observation's contribution to error.
-                first entry corresponds to x0, second to x1
-        """
         nvars = len(w)
+
+        # initialize + regularization term
+        loss = 0.5 * lam * np.sum(w ** 2)
         gradient = np.zeros(nvars + 1)               # first position is b
         gradient[1:] = lam * w
 
-        # need sum(sigmoid(x) - y) * x for all variables
-        error = LogisticRegression._sigmoid(x, b, w) - y
-        if weights is None:
-            gradient[0] = np.sum(error)   # * 1 for bias term
-            for k in xrange(nvars):
-                gradient[k + 1] += np.sum(error * x[:, k])
-        else:
-            gradient[0] = np.sum(error * weights)   # * 1 for bias term
-            for k in xrange(nvars):
-                gradient[k + 1] += np.sum(weights * error * x[:, k])
+        # we need prediction for x
+        pred_x_0_1 = [LogisticRegression._sigmoid(x0, b, w), LogisticRegression._sigmoid(x1, b, w)]
 
-        return gradient
+        # the log likelihood
+        log_like_x_0_1 = [np.log(1.0 - pred_x_0_1[0]),
+                          np.log(pred_x_0_1[1])]
+
+        # also need the error for gradient.
+        error = [pred_x_0_1[0],
+                 pred_x_0_1[1] - 1]
+
+        if weights is None:
+            loss += -np.sum(log_like_x_0_1[1]) - np.sum(log_like_x_0_1[0])
+            gradient[0] += np.sum(error[0]) + np.sum(error[1])   # * 1 for bias term 
+            for k in xrange(nvars):
+                gradient[k + 1] += np.sum(error[0] * x0[:, k]) + np.sum(error[1] * x1[:, k])
+        else:
+            loss += -np.sum(weights[1] * log_like_x_0_1[1]) - np.sum(weights[0] * log_like_x_0_1[0])
+            gradient[0] += np.sum(error[0] * weights[0]) + np.sum(error[1] * weights[1])
+            for k in xrange(nvars):
+                gradient[k + 1] += ( np.sum(weights[0] * error[0] * x0[:, k]) +
+                                     np.sum(weights[1] * error[1] * x1[:, k]) )
+        return loss, gradient
 
