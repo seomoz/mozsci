@@ -6,7 +6,7 @@ class TrainModelCV(object):
     def __init__(self,
                  model_description=[None, None, '', (), {}],
                  X=None, y=None, Xtest=None, ytest=None,
-                 folds=None, weights=None, weightstest=None):
+                 folds=None, weights=None, weightstest=None, fit_kwargs={}):
         """
         model_description = [model_init, error, model_save_file, args, kwargs]
                 WHERE
@@ -18,6 +18,8 @@ class TrainModelCV(object):
             error = a callable thing that computes error as error(Yactual, Ypred)
             model_save_file = if provided, then saves the model to this file
             args, kwards = passed to model_init(*args, **kwargs)
+
+            fit_kwargs = anything to pass down the model.fit routine (error tolerance, etc)
 
         X, y = training dataset (required)
         Xtest, Ytest = testing dataset (if provided, then computes error on this dataset
@@ -45,13 +47,14 @@ class TrainModelCV(object):
             assert Xtest is None and ytest is None
         self.weights = weights
         self.weightstest = weightstest
+        self._fit_kwargs = fit_kwargs
 
 
     def run(self):
         if self.folds is not None:
             errors = self._run_kfold()
         else:
-            errors, model = self._run_one_train_test(self.X, self.y, self.Xtest, self.ytest, self.weights, self.weightstest)
+            errors, model = self._run_one_train_test(self.X, self.y, self.Xtest, self.ytest, self.weights, self.weightstest, fit_kwargs=self._fit_kwargs)
 
             # save to file if needed
             if self.model_save_file is not None:
@@ -72,11 +75,9 @@ class TrainModelCV(object):
             test_indices = self.folds[k][1]
 
             if self.weights is None:
-                this_error, model = self._run_one_train_test(self.X[train_indices, :], self.y[train_indices], self.
-X[test_indices, :], self.y[test_indices])
+                this_error, model = self._run_one_train_test(self.X[train_indices, :], self.y[train_indices], self.X[test_indices, :], self.y[test_indices], fit_kwargs=self._fit_kwargs)
             else:
-                this_error, model = self._run_one_train_test(self.X[train_indices, :], self.y[train_indices], self.
-X[test_indices, :], self.y[test_indices], self.weights[train_indices], self.weights[test_indices])
+                this_error, model = self._run_one_train_test(self.X[train_indices, :], self.y[train_indices], self.X[test_indices, :], self.y[test_indices], self.weights[train_indices], self.weights[test_indices], fit_kwargs=self._fit_kwargs)
 
             errors.append(this_error)
 
@@ -97,7 +98,7 @@ X[test_indices, :], self.y[test_indices], self.weights[train_indices], self.weig
         return ret
 
 
-    def _run_one_train_test(self, X, y, Xtest, ytest, weights=None, weightstest=None):
+    def _run_one_train_test(self, X, y, Xtest, ytest, weights=None, weightstest=None, fit_kwargs={}):
         # initialize model
         # train
         # compute error
@@ -107,9 +108,9 @@ X[test_indices, :], self.y[test_indices], self.weights[train_indices], self.weig
 
         # train
         try:
-            model.fit(X, y, weights=weights)
+            model.fit(X, y, weights=weights, **fit_kwargs)
         except TypeError:   # model doesn't do weighted learning
-            model.fit(X, y)
+            model.fit(X, y, **fit_kwargs)
 
         # compute error
         errors = {}
