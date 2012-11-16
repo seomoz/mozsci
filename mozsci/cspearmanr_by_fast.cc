@@ -2,6 +2,7 @@
 #include <iostream>
 #include <numeric>
 #include <math.h>
+#include <algorithm>
 
 template <class iter_t>
 struct indexed_compare
