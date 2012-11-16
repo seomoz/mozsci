@@ -24,21 +24,14 @@ def pearsonr_weighted(x, y, weights=None):
 
 def auc_wmw_fast(t, p, weights=None):
     """Compute the AUC by using the Wilcoxon-Mann-Whitney
-    statistic. Only binary classification problems are allowed.
+    statistic
+    
+    t = (Nobs, ) target values  (-1/+1) or (0/1)
+    p = (Nobs, ) predicted values
+    weights = a (Nobs, )  array with the weights
+      if omitted, uses uniform weights
 
-    :Parameters:
-      t : 1d array_like object integer (-1/+1) or (0/1)
-        target values
-      p : 1d array_like object (negative/positive values)
-        predicted values
-      
-    :Returns:
-      AUC : float, in range [0.0, 1.0]
-
-    A fast 
-
-    weights = a length(t) array with the weights
-        if omitted, uses uniform weights
+    Returns AUC
     """
     tarr = np.asarray(t, dtype=np.int)
     parr = np.asarray(p, dtype=np.float)
