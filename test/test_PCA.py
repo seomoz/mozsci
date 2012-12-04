@@ -21,7 +21,7 @@ class TestLinearPCA(unittest.TestCase):
         # make the PCA, do the training, then project on all three eigenvectors,
         # and reconstruct the original data
         p = pca.LinearPCA()
-        p.train(data, 1)
+        p.train(data)
         data_proj = p.project(data, 3)
 
         # reconstruct the data from the projection

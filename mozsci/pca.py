@@ -3,7 +3,6 @@
 import json
 
 import numpy as np
-import pylab as plt
 
 from .numpy_util import numpy_decoder, NumpyEncoder
 
@@ -52,6 +51,7 @@ class LinearPCA(object):
         if fignum is not None:
             eigval_sum = self._compute_percent_explained()
 
+            import pylab as plt
             fig = plt.figure(fignum)
             fig.clf()
             plt.plot(eigval_sum, 'bx')
@@ -67,6 +67,7 @@ class LinearPCA(object):
 
     def plot_eigvec(self, neig, fignum):
         """Plots the first neig eigenvectors for figure fignum"""
+        import pylab as plt
         fig = plt.figure(fignum)
         fig.clf()
         pct_explain = self._compute_percent_explained()
