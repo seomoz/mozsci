@@ -65,8 +65,11 @@ def auc_wmw_fast(t, p, weights=None):
         }
         return_val = auc / sum_weights;
     """
-    return scipy.weave.inline(code, ['idxp', 'idxn', 'parr', 'nidxn', 'nidxp', 'warr'],
-            type_converters=scipy.weave.converters.blitz)
+    auc = scipy.weave.inline(code, ['idxp', 'idxn', 'parr', 'nidxn', 'nidxp', 'warr'],
+                type_converters=scipy.weave.converters.blitz)
+    if np.isnan(auc):
+        auc = 0
+    return auc
 
 
 def auc_wmw_error(t, p, weights=None):
@@ -94,6 +97,7 @@ def precision_recall_f1(y, ypred, thres=0.5, weights=None):
     y and ypred are numpy arrays
     weights = if provided is a y.shape() array with the weights
     take a weighted error in this case"""
+    # see http://en.wikipedia.org/wiki/Precision_and_recall
     # need to properly handle case where y = (10, ), ypred=(10, 1)
     ypred_1 = (ypred > thres).reshape(-1, 1)
     yy = y.reshape(-1, 1)
@@ -107,9 +111,27 @@ def precision_recall_f1(y, ypred, thres=0.5, weights=None):
         fp = np.sum(np.logical_and(ypred_1, yy == 0) * ww)
         fn = np.sum(np.logical_and(~ypred_1, yy == 1) * ww)
 
-    precision = tp / float(tp + fp)
-    recall = tp / float(tp + fn)
-    f1 = 2.0 * precision * recall / (precision + recall)
+#    precision = tp / float(tp + fp)
+#    recall = tp / float(tp + fn)
+#    f1 = 2.0 * precision * recall / (precision + recall)
+
+    # we need to check for degenerate cases
+    # that might happen if we have only 1 input
+    if tp + fp > 0:
+        precision = tp / float(tp + fp)
+    else:
+        precision = 0
+
+    if tp + fn > 0:
+        recall = tp / float(tp + fn)
+    else:
+        recall = 0
+
+    if precision + recall > 0:
+        f1 = 2.0 * precision * recall / (precision + recall)
+    else:
+        f1 = 0
+
     return precision, recall, f1
 
 

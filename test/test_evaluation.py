@@ -17,6 +17,13 @@ class TestAUCFast(unittest.TestCase):
 
         self.assertTrue(abs(auc_act - auc) < 1.0e-8)
 
+    def test_auc_degenerate(self):
+        y = np.array([0])
+        ypred = np.array([[ 1.0]])
+        weights = np.array([1])
+        auc = evaluation.auc_wmw_fast(y, ypred, weights=weights)
+        self.assertTrue(auc == 0)
+
 
 class Testclassification_error(unittest.TestCase):
     def test_classification_error(self):
@@ -70,6 +77,20 @@ class Test_precision_recall_f1(unittest.TestCase):
                     prec_rec_f1 = evaluation.precision_recall_f1(y, ypred, weights=weights)
                     for k in xrange(3):
                         self.assertTrue(abs(actual_prec_rec_f1[k] - prec_rec_f1[k]) < 1e-12)
+
+
+    def test_degenerate(self):
+        # test case with degenerate input
+        y = np.array([0])
+        ypred = np.array([[ 1.0]])
+        weights = np.array([1])
+        prf = evaluation.precision_recall_f1(y, ypred, weights=weights)
+
+        # check that none are NaN
+        self.assertFalse(np.array([np.isnan(ele) for ele in prf]).any())
+
+        # and they should all be 0
+        self.assertTrue(np.allclose(prf, [0, 0, 0]))
 
 
     @staticmethod
