@@ -8,6 +8,7 @@
 #
 
 import numpy as np
+import json
 
 class EnsembleModelSelector(object):
     """Implements
@@ -71,8 +72,7 @@ class EnsembleModelSelector(object):
         self.nmodels = nmodels
         self.ensemble_indices = np.arange(len(ymodels))[self.ensemble > 0.5]
 
-
-    def select_ensemble(self, y, ymodels):
+    def select_ensemble(self, y, ymodels, early_termination = False):
         """Y = actual y = (N, ) numpy array
            ymodels = a list of predictions from different models.
              len(ymodels) = nmodels
@@ -99,17 +99,26 @@ class EnsembleModelSelector(object):
         current_prediction /= float(self.nsort)
         nmodels = self.nsort
 
+        if early_termination: last_error = np.finfo(np.float).max
         # (2)
         for k in xrange(self.niter):
             # find the model that reduces error the most
             # current_prediction is averaged over nmodels
             # need to add in one more as a weighted average
             errors = np.array([self.error(y, current_prediction * (float(nmodels) / (nmodels + 1)) + ypred.astype(np.float) / float(nmodels + 1)) for ypred in ymodels])
+
+            if early_termination:
+                min_error = errors.min()
+                if min_error < last_error: last_error = min_error
+                else:break
+
             model_to_add = errors.argmin()
 
             self.ensemble[model_to_add] += 1
             current_prediction = current_prediction * (float(nmodels) / (nmodels + 1)) + ymodels[model_to_add].astype(np.float) / float(nmodels + 1)
             nmodels += 1
+
+            print("Iteration %s, error=%s" % (k, errors.min()))
 
         # pull out the indices of models included in the final ensemble
         self.ensemble_indices = np.arange(len(ymodels))[self.ensemble > 0.5]
@@ -124,6 +133,46 @@ class EnsembleModelSelector(object):
             pred += ymodels[k] * self.ensemble[k]
         return pred.astype(np.float) / np.float(self.nmodels)
 
+    def save_ensemble(self, fileout):
+        """
+        Serialize the ensemble.
+        :param fileout: name of the file to write the json string, or a file object.
+        :return: None
+        """
+        if self.ensemble is None or self.ensemble_indices is None:
+            raise ValueError('The ensemble has not been properly trained.')
+
+        model_json = {
+            'nmodels': self.nmodels,
+            'ensemble': self.ensemble[:].tolist(),
+            'ensemble_indices': self.ensemble_indices[:].tolist(),
+            }
+
+        # save to the file
+        if isinstance(fileout, basestring):
+            with open(fileout, 'w') as f:
+                json.dump(model_json, f)
+        else:
+            json.dump(model_json, fileout)
+
+    @classmethod
+    def load_ensemble(cls, model_json):
+        """
+        Load the serialized model. Afteer the loading, we can use pred method on new data sets.
+        :param cls:
+        :param model_json: name of the file to read in the json string, or a file object.
+        :return: the new object.
+        """
+        if isinstance(model_json, basestring):
+            with open(model_json, 'r') as f:
+                model_json = json.load(f)
+
+        ensemble = cls()
+        ensemble.nmodels = model_json['nmodels']
+        ensemble.ensemble = np.array(model_json['ensemble'], dtype = np.float64)
+        ensemble.ensemble_indices = np.array(model_json['ensemble_indices'], dtype = np.int)
+
+        return ensemble
 
 if __name__ == "__main__":
 
