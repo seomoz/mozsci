@@ -105,7 +105,7 @@ class TestGlm(unittest.TestCase):
             [ (This is k*) -2.53387660e-01  -4.31184391e-01  -1.60095828e-03  -1.43475268e-02
               (This is the intercept) 2.71606920e+00]
         """
-        mydata = np.genfromtxt('/home/jfeng/data/ec2/fa01242013/unittestdata/poissonreg.csv', delimiter=',', skip_header=1)
+        mydata = np.genfromtxt('data/poissonreg.csv', delimiter=',', skip_header=1)
         features = mydata[:, 2:5]
 
         Y = mydata[:, 6]
@@ -119,5 +119,4 @@ class TestGlm(unittest.TestCase):
         np.testing.assert_almost_equal(reg.params[1:], expected, decimal=2)
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite([ unittest.TestLoader().loadTestsFromTestCase(TestGlm) ])
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    unittest.main()
