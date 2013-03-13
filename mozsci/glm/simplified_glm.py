@@ -125,12 +125,16 @@ class SimplifiedGlmBase(object):
         features = np.c_[x, np.ones(x.shape[0])]
         return np.inner(features, self.params)
 
-    def save_model(self, model_file):
-        """Serialize model to model_file"""
+    def save_model(self, model_file=None):
+        """Serialize model to model_file or return the json str if no file is provided."""
         m = {'params':self.params.tolist()}
 
-        with open(model_file, 'w') as f:
-            json.dump(m, f)
+        if model_file is None:
+            return json.dumps(m)
+        else:
+            with open(model_file, 'w') as f:
+                json.dump(m, f)
+            return None
 
     @classmethod
     def load_model(cls, model_file):
@@ -168,7 +172,6 @@ class NegativeBinomialWithKstarRegression(SimplifiedGlmBase):
         """
 
         if regular is None:
-            print 'lam is --from nb inside ', lam
             ## The first entry is the k_star, ie. the number of failures in negative binomial.
             ## The last entry is the constant term in the linear regression.
             regular = regularization.RidgeRegularizationChosen(lam, dim=beta_k_len, free_list=[0, beta_k_len - 1])
