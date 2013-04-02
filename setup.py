@@ -44,7 +44,7 @@ setup(
     author           = 'Matt Peters',
     author_email     = 'matt@seomoz.org',
     url              = 'http://github.com/seomoz/mozsci',
-    packages         = ['mozsci', 'mozsci.models'],
+    packages         = ['mozsci', 'mozsci.models', 'mozsci.glm'],
     license          = 'MIT',
     platforms        = 'Posix; MacOS X',
     cmdclass         = {'build_ext': build_ext},
