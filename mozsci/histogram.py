@@ -190,4 +190,75 @@ class Histogram1DFast(object):
         else:
             return x[indices_accept]
 
+def plot_joint_marginal(x, y,
+    N=50, range_x=None, range_y=None, log_joint=False,
+    xtitle=None, ytitle=None, title=None, 
+    fignum=1, show=True, outfile=None):
+    """
+    Makes a pretty joint/marginal probability plot
+
+    In the main square we plot the joint PDF
+    On each axis we also add the marginal PDFs
+    Correlations optionally added to the title
+
+    Input:
+        N = number of bins
+        range_x/range_y = the ranges for x and y.  If None, uses
+            min/max values
+        log_joint = if True, then plot log(joint counts),
+             otherwise just use joint(counts)
+        xtitle/ytitle/title = strings to add for description
+    
+        fignum = plot in this figure
+        show = if True, does a fig.show()
+    Returns the fig object
+    """
+    import pylab as plt
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+    if range_x is None:
+        range_x = [x.min(), x.max()]
+    if range_y is None:
+        range_y = [y.min(), y.max()]
+
+    # make a 2D histogram of the input for contour plotting
+    # any bins with density 0 we will set to NaN so they aren't plotted
+    data_hist_2D = np.histogram2d(x, y, bins=[N, N+1], range=[range_x, range_y])
+    x_bins = 0.5 * (data_hist_2D[1][0:-1] + data_hist_2D[1][1:])
+    y_bins = 0.5 * (data_hist_2D[2][0:-1] + data_hist_2D[2][1:])
+    data_hist_2D = data_hist_2D[0]
+    data_hist_2D[data_hist_2D == 0] = np.nan
+    if log_joint:
+        data_hist_2D = np.log(data_hist_2D + 1)
+
+    fig = plt.figure(fignum)
+    fig.clf()
+
+    # the contour plot in the middle with joint PDF
+    axScatter = plt.subplot(111)
+    axScatter.contourf(x_bins, y_bins, data_hist_2D.T, ncontours=10)
+    plt.xlabel(xtitle)
+    plt.ylabel(ytitle)
+
+    divider = make_axes_locatable(axScatter)
+    axHistx = divider.append_axes("top", 1.2, pad=0.1, sharex=axScatter)
+    axHisty = divider.append_axes("right", 1.2, pad=0.1, sharey=axScatter)
+    dummy = plt.setp(axHistx.get_xticklabels() + axHistx.get_yticklabels() + axHisty.get_xticklabels() + axHisty.get_yticklabels(), visible=False)
+
+    axHisty.hist(y, N+1, range=range_y, orientation='horizontal')
+    axHistx.hist(x, N, range=range_x)
+
+    if title:
+        plt.figtext(0.5, 0.94, title,
+            ha='center', color='black', weight='bold', size='large')
+
+    if show:
+        fig.show()
+    if outfile is not None:
+        plt.savefig(outfile)
+    return fig
+
+
+
+
 
