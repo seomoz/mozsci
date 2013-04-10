@@ -154,28 +154,33 @@ def run_train_models(processes, model_library, **kwargs):
     #          [[LogisticRegression, classification_error, 'parameters.json', (), {'lam':0.5}],
     #          [LogisticRegression, auc_wmw_fast, None, (), {'C':50}]]
 
-    # use a process pool top execute all the training jobs
-    # collect the results and combine to return
-    from multiprocessing import Pool
 
-    p = Pool(processes)
+    if processes > 1:
 
-    #ret = {}
-    #for model in model_library:
-    #    p.apply_async(_pool_helper, (model_library, ), kwargs, callback=ret.update)
+        # use a process pool top execute all the training jobs
+        # collect the results and combine to return
+        from multiprocessing import Pool
 
-    results = []
-    for model in model_library:
-        results.append(p.apply_async(_pool_helper, (model, ), kwargs))
+        p = Pool(processes)
 
-    # wait on the pool to finish
-    p.close()
-    p.join()
+        results = []
+        for model in model_library:
+            results.append(p.apply_async(_pool_helper, (model, ), kwargs))
 
-    # collect the results
-    ret = {}
-    for result in results:
-        ret.update(result.get())
+        # wait on the pool to finish
+        p.close()
+        p.join()
+
+        # collect the results
+        ret = {}
+        for result in results:
+            ret.update(result.get())
+
+    else:
+        # don't need a pool
+        ret = {}
+        for model in model_library:
+            ret.update(_pool_helper(model, **kwargs))
 
     return ret
 
