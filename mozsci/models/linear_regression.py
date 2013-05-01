@@ -20,7 +20,7 @@ class LinearRegression(object):
         """
         return np.sum(self.w * x, axis=1) + self.b
 
-    def fit(self, x, y, weights=None):
+    def fit(self, x, yy, weights=None):
         """Train the model.
 
         x = (Nobs, nvars)
@@ -29,6 +29,13 @@ class LinearRegression(object):
         Bias term automatically added
 
         Returns the loss"""
+        # transform y to vector
+        if len(yy.shape) > 1:
+            assert len(yy.shape) == 2 and yy.shape[1] == 1
+            y = yy.reshape(-1, )
+        else:
+            y = yy
+
         def _loss_for_optimize(params):
             return LinearRegression._loss(x, y, params[0], params[1:], self.lam, weights)
         def _gradient_for_optimize(params):
