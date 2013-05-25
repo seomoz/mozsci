@@ -83,7 +83,7 @@ double spearman_by(std::vector<double> a, std::vector<double> b, std::vector<std
     int ngroups = 0;
 
     // the minimum number of elements in a by group to add into the overall result
-    int min_by = 7;
+    int min_by = 25;
 
     std::size_t last_by = byvar[0];
     int nby = 0;
@@ -102,8 +102,12 @@ double spearman_by(std::vector<double> a, std::vector<double> b, std::vector<std
                 // compute stuff
                 std::vector<double>  a_by_group(&a[start_index], &a[start_index + nby]);
                 std::vector<double>  b_by_group(&b[start_index], &b[start_index + nby]);
-                ret = ret + spearman_correlation(a_by_group, b_by_group);
-                ngroups++;
+                double sc = spearman_correlation(a_by_group, b_by_group);
+                if (!isnan(sc))
+                {
+                    ret = ret + sc;
+                    ngroups++;
+                }
             }
 
             // reset
@@ -119,8 +123,12 @@ double spearman_by(std::vector<double> a, std::vector<double> b, std::vector<std
         // compute stuff
         std::vector<double>  a_by_group(&a[start_index], &a[start_index + nby]);
         std::vector<double>  b_by_group(&b[start_index], &b[start_index + nby]);
-        ret = ret + spearman_correlation(a_by_group, b_by_group);
-        ngroups++;
+        double sc = spearman_correlation(a_by_group, b_by_group);
+        if (!isnan(sc)) 
+        {
+            ret = ret + sc;
+            ngroups++;
+        }
     }
 
     return ret / ngroups;
