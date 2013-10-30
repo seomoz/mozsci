@@ -5,19 +5,41 @@ production case. The codes are designed to be shared by these two processes as m
 Two things that highlight this design are 1. feature variable normalization. 2. variable definition support.
 '''
 
-import itertools
 import json
 import numpy as np
 import pickle
+import copy
+from mozsci.cross_validate import cv_kfold
 
 
-logp1 = lambda x: np.log(x + 1)
+def logp1(x):
+    """
+    a simple function to return log(x+1). x must be 0 or positive.
+    """
+    return np.log(x + 1)
 
 
 def dumps_variable_def(variable_def_dict):
     """
     convert the useful information in the volume variable definitions to a dictionary for serialization.
     :return: the dictionary.
+
+    One example of the variable_def_dict is as follows,
+    bing_volume = {'name': 'bing_volume',
+                   'transform': lambda splitted_line: int(splitted_line[2]),
+                   'normalization': True}
+    log_fwe_volume = {'name': 'fwe_log_volume',
+                      'transform': lambda splitted_line: float(splittxed_line[3]),
+                      'normalization': True}
+    log_google_volume = {'name': 'google_volume',
+                         'transform': lambda splitted_line: float(splittxed_line[0]),
+                         'normalization': False}
+
+    variable_definition_example = {'independent_variables': [log_bing_volume, log_fwe_volume],
+                                    'dependent_variable': log_google_volume,
+                                    'data_schema': [dependent_variable] + independent_variables}
+
+    The 'transform' in each variable dictionary defines how we collect data from a tsv file.
     """
     def return_jsonable_dict(variable_def):
         """
@@ -40,9 +62,10 @@ def dumps_variable_def(variable_def_dict):
 class ModelDriver(object):
     """
     This class is used to drive any model/algorithm for training and prediction purposes. It's specifically
-    designed so that we don't worry about the normalization for cross validation procedures.
+    designed so that we don't need to worry about the normalization for cross validation procedures. It also
+    supports the variable definitions that we use for data collection.
 
-    This is the class used to train and test one data set. -- supposed to be called once for each round in
+    This is the class used to train and test one data set. -- it is supposed to be called once for each round in
     cross validations.
 
     The major goal is to make the normalization parameters as an output of the training process, and an
