@@ -310,34 +310,3 @@ def k_fold_train_test_model(model, X, y, perf_measure, variable_def, k_fold=5):
     return np.mean(perf_list)
 
 
-if __name__ == "__main__":
-
-#     def __init__(self, name=None, pre_transform=None, transform=None, post_transform=None,
-#                  normalization=False, mean_std=None, description=None):
-
-    va1 = Variable(name='test_indep_1', pre_transform=lambda x: x+1, transform=lambda x: float(x[1])*1.0,
-                   post_transform=lambda x: x + 2.6, normalization=True, description='first test variable of independent')
-
-    va2 = Variable(name='test_indep_2', pre_transform=lambda x: x+1, transform=lambda x: float(x[2])*1.0,
-                   post_transform=lambda x: x + 2.6, normalization=True, description='second test variable of independent')
-
-    va3 = Variable(name='test_dep_1', pre_transform=lambda x: x+1, transform=lambda x: float(x[0])*1.0,
-                   post_transform=lambda x: x + 2.6, normalization=True, description='second test variable of dependent')
-
-    model_variables = ModelVariables(independent=[va1, va2], dependent=[va3], schema=[va3, va1, va2])
-
-    j_str = model_variables.dump_parameters()
-    X, y = model_variables.get_training_data('/home/jfeng/data/test/test.txt', header=False)
-    model_variables.load_parameters(j_str)
-
-    # print X
-    print j_str
-    # print y
-    X, y = model_variables.get_training_data('/home/jfeng/data/test/test.txt', header=False)
-
-    print model_variables
-
-    # model_variables.load_parameters(j_str)
-
-
-
