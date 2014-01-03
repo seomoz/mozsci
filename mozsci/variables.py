@@ -256,6 +256,14 @@ class ModelDriver(object):
 
                 X[:, index] = (X[:, index] - item.mean_std[0]) / item.mean_std[1]
 
+        # print 'normalization is done.'
+        # rows, columns = X.shape
+        # for i in range(columns):
+        #     print 'asserting ... ', i
+        #     assert not np.any(np.isnan(X[:, i]) | np.isinf(X[:, i]))
+
+        # print 'assert succeeded.'
+
     def fit(self, predictors, y):
         """
         train the model using observations. Do normalization if needed.
@@ -269,7 +277,7 @@ class ModelDriver(object):
 
         self.model.fit(X, y)
 
-    def predict(self, predictors, make_copy=True):
+    def predict(self, predictors, make_copy=True, predict_prob=False):
         """
         This method does the prediction using the model and saved normalization parameters.
         make_copy should be set to True if doing k-folds cv. It should be set to False for production.
@@ -280,7 +288,20 @@ class ModelDriver(object):
 
         self.normalize(predictors, calculate_mean_std=False)
 
-        return self.model.predict(predictors)
+        if predict_prob:
+            return self.model.predict_proba(predictors)
+        else:
+            return self.model.predict(predictors)
+
+    def item_predict(self, item, predict_prob=False):
+        """
+        This will mostly likely be used in production. It first creates a numpy array based on the post-transforms.
+        And then feed this numpy array to predict method.
+        """
+        X_lst = [variable.post_transform(item) for variable in self.variable_def.independent]
+        X = np.array(X_lst).reshape((1, -1))
+
+        return self.predict(X, make_copy=False, predict_prob=predict_prob)
 
 
 def k_fold_train_test_model(model, X, y, perf_measure, variable_def, k_fold=5):
