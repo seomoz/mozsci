@@ -256,14 +256,6 @@ class ModelDriver(object):
 
                 X[:, index] = (X[:, index] - item.mean_std[0]) / item.mean_std[1]
 
-        # print 'normalization is done.'
-        # rows, columns = X.shape
-        # for i in range(columns):
-        #     print 'asserting ... ', i
-        #     assert not np.any(np.isnan(X[:, i]) | np.isinf(X[:, i]))
-
-        # print 'assert succeeded.'
-
     def fit(self, predictors, y):
         """
         train the model using observations. Do normalization if needed.
