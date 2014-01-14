@@ -42,6 +42,36 @@ class Test_mean_std_weightd(unittest.TestCase):
         self.assertTrue(np.allclose(ret['std'], [s1, s2]))
 
 
+class TestLogScaledTransformer(unittest.TestCase):
+    def test_log_transformer(self):
+        mean = np.array([0.5, 1.0])
+        std = np.array([0.3, 0.8])
+        offset = 2.0
+        nsamples = int(1e6)
+        samples = np.zeros((nsamples, 2))
+        for k in xrange(2):
+            samples[:, k] = np.random.normal(mean[k], std[k], nsamples)
+        exp_samples = np.exp(samples) - offset
+
+        transformer = inputs.LogScaledTransformer(offset=offset)
+
+        # check fit
+        transformer.fit(exp_samples)
+        self.assertTrue(np.allclose(transformer.mean_, mean, atol=1e-2))
+        self.assertTrue(np.allclose(transformer.std_, std, atol=1e-2))
+
+        # check transform
+        X = exp_samples[:10]
+        transformed = transformer.transform(X)
+        expected = 1.0 / transformer.std_ * (
+            np.log(X + offset) - transformer.mean_)
+        self.assertTrue(np.allclose(transformed, expected))
+
+        # inverse transform
+        self.assertTrue(np.allclose(X,
+            transformer.inverse_transform(transformer.transform(X))))
+
+
 if __name__ == "__main__":
     unittest.main()
 
