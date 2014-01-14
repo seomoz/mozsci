@@ -38,12 +38,6 @@ class IdentityTransformer(object):
     '''
     Identity transformer that implements sklearn Transformer API
     '''
-    def set_params(self, params):
-        pass
-
-    def get_params(self):
-        return None
-
     def transform(self, X, *args, **kwargs):
         return X
 
