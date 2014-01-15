@@ -1,7 +1,6 @@
 
 import unittest
 import numpy as np
-import pickle
 
 from mozsci.evaluation import classification_error
 from mozsci.inputs import IdentityTransformer, LogScaledTransformer
@@ -46,7 +45,8 @@ class TestModelDriver(unittest.TestCase):
         self.assertTrue(classification_error(data['y'], ypred) < 0.002)
 
         # serialization
-        model_loaded = pickle.loads(pickle.dumps(model))
+        model_string = model.dumps()
+        model_loaded = variables.ModelDriver.loads(model_string)
         self.assertTrue(np.allclose(
             model.predict(data, predict_prob=True),
             model_loaded.predict(data, predict_prob=True)))

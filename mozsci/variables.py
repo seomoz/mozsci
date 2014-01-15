@@ -138,3 +138,18 @@ class ModelDriver(object):
         else:
             return self.model.predict(XX)
 
+    def dumps(self):
+        '''
+        Return a string representation of this instance
+        '''
+        import cPickle
+        return cPickle.dumps(self)
+
+    @classmethod
+    def loads(cls, string):
+        '''
+        Return an instance from the serialized string
+        '''
+        import cPickle
+        return cPickle.loads(string)
+
