@@ -2,6 +2,8 @@
 
 import numpy as np
 
+from sklearn.preprocessing import StandardScaler
+
 def mean_std_weighted(x, weights=None):
     """Computes weighted mean and standard deviation.
 
@@ -30,4 +32,44 @@ def mean_std_weighted(x, weights=None):
             ret['std'][i] = 1.0
 
     return ret
+
+
+class IdentityTransformer(object):
+    '''
+    Identity transformer that implements sklearn Transformer API
+    '''
+    def transform(self, X, *args, **kwargs):
+        return X
+
+    def fit(self, X, *args, **kwargs):
+        pass
+
+
+class LogScaledTransformer(StandardScaler):
+    def __init__(self, offset=0.0, **kwargs):
+        '''
+        Take log(X+offset) then apply mean-std scaling.
+        **kwargs: passed into StandardScaler.__init__
+
+        we ignore the copy options for convenience
+        '''
+        super(LogScaledTransformer, self).__init__(**kwargs)
+        self._offset = offset
+
+    def _log(self, X):
+        return np.log(X + self._offset)
+
+    def fit(self, X, *args, **kwargs):
+        XX = self._log(X)
+        return super(LogScaledTransformer, self).fit(XX, *args, **kwargs)
+
+    def transform(self, X, *args, **kwargs):
+        XX = self._log(X)
+        return super(LogScaledTransformer, self).transform(
+            XX, *args, **kwargs)
+
+    def inverse_transform(self, X, *args, **kwargs):
+        XX = super(LogScaledTransformer, self).inverse_transform(
+            X, *args, **kwargs)
+        return np.exp(XX) - self._offset
 
