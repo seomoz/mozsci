@@ -71,6 +71,21 @@ class TestLogScaledTransformer(unittest.TestCase):
         self.assertTrue(np.allclose(X,
             transformer.inverse_transform(transformer.transform(X))))
 
+class TestBucketTransformer(unittest.TestCase):
+    def test_bucket_transformer(self):
+        transformer = inputs.BucketTransformer([0, 1, 2.4])
+        X = np.array([0.5, 1.2, -1, 3.9, 1.9, 2.1])
+        Y = transformer.transform(X)
+        expectedY = np.array(
+                [[ 0.,  1.,  0.,  0.],
+                [ 0.,  0.,  1.,  0.],
+                [ 1.,  0.,  0.,  0.],
+                [ 0.,  0.,  0.,  1.],
+                [ 0.,  0.,  1.,  0.],
+                [ 0.,  0.,  1.,  0.]]
+        )
+        self.assertTrue(np.allclose(Y, expectedY))
+
 
 if __name__ == "__main__":
     unittest.main()
