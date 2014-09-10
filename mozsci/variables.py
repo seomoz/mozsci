@@ -8,15 +8,17 @@ class Variable(object):
     """
     A Variable is one group of input or output to a model.
     """
-    def __init__(self, name, transformer, ndim=1):
+    def __init__(self, name, transformer, ndim=1, ndimout=1):
         """
         name: the variable name
         transformer: implements the sklearn.Transformer API
             (fit, transform)
-        ndim: the dimension of the variable
+        ndim: the dimension of the variable (input)
+        ndimout: the dimension of the output transform
         """
         self.name = name
         self.ndim = ndim
+        self.ndimout = ndimout
         self._transformer = transformer
 
     # forwarding methods
@@ -92,14 +94,17 @@ class ModelDriver(object):
         '''
         Transform the data
         '''
-        ret = np.zeros(X.shape)
+        nout = sum([v.ndimout for v in variables])
+        ret = np.zeros((len(X), nout))
         ind = 0
+        indout = 0
         for variable in variables:
             if fit:
                 variable.fit(X[:, ind:(ind + variable.ndim)])
-            ret[:, ind:(ind + variable.ndim)] = variable.transform(
+            ret[:, indout:(indout + variable.ndimout)] = variable.transform(
                 X[:, ind:(ind + variable.ndim)])
             ind += variable.ndim
+            indout += variable.ndimout
         return ret
 
     def fit(self, predictors, y):

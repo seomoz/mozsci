@@ -103,11 +103,11 @@ class BucketTransformer(object):
         X = len N vector
         return (N, nbins) matrix with 1-in-k encoding
         '''
-        assert(len(X.shape) == 1)
+        assert len(X.shape) == 1 or min(X.shape) == 1
 
         ret = np.zeros((len(X), self._nbins))
         for k, binarizer in enumerate(self._binarizers):
-            ret[:, k] = binarizer.transform(X)
+            ret[:, k] = binarizer.transform(X.flatten())
 
         # since binarizer is 0-1 for whether X is less then the threshold
         # we need the last 1 in each column, e.g.
