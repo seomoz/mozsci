@@ -2,6 +2,7 @@
 A few useful abstractions for input/output variables in machine learning
 """
 import numpy as np
+from itertools import izip
 
 
 class Variable(object):
@@ -94,17 +95,27 @@ class ModelDriver(object):
         '''
         Transform the data
         '''
-        nout = sum([v.ndimout for v in variables])
+        # get the output dimensions
+        try:
+            ndimout = [v.ndimout for v in variables]
+        except AttributeError:
+            ndimout = []
+            for v in variables:
+                if hasattr(v, 'ndimout'):
+                    ndimout.append(v.ndimout)
+                else:
+                    ndimout.append(1)
+        nout = sum(ndimout)
         ret = np.zeros((len(X), nout))
         ind = 0
         indout = 0
-        for variable in variables:
+        for variable, dimout in izip(variables, ndimout):
             if fit:
                 variable.fit(X[:, ind:(ind + variable.ndim)])
-            ret[:, indout:(indout + variable.ndimout)] = variable.transform(
+            ret[:, indout:(indout + dimout)] = variable.transform(
                 X[:, ind:(ind + variable.ndim)])
             ind += variable.ndim
-            indout += variable.ndimout
+            indout += dimout
         return ret
 
     def fit(self, predictors, y):
