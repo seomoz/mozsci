@@ -73,3 +73,48 @@ class LogScaledTransformer(StandardScaler):
             X, *args, **kwargs)
         return np.exp(XX) - self._offset
 
+
+class BucketTransformer(object):
+    '''
+    Transform a float to a categorical variable and represent as
+        1-in-k encoding.
+    '''
+    def __init__(self, bin_edges):
+        '''
+        bin_edges: edges for the len(bin_edges) + 1 bins.  They are:
+
+        bin_edges = [x0, x1, ..., xn]
+            x <= x0
+            x0 < x <= x1
+            ...
+            xn < x
+        '''
+        from sklearn.preprocessing import Binarizer
+        self._binarizers = [Binarizer(threshold=-np.inf)]
+        self._binarizers.extend(
+            [Binarizer(threshold=edge) for edge in bin_edges])
+        self._nbins = len(self._binarizers)
+
+    def fit(self, *args, **kwargs):
+        pass
+
+    def transform(self, X):
+        '''
+        X = len N vector
+        return (N, nbins) matrix with 1-in-k encoding
+        '''
+        assert len(X.shape) == 1 or min(X.shape) == 1
+
+        ret = np.zeros((len(X), self._nbins))
+        for k, binarizer in enumerate(self._binarizers):
+            ret[:, k] = binarizer.transform(X.flatten())
+
+        # since binarizer is 0-1 for whether X is less then the threshold
+        # we need the last 1 in each column, e.g.
+        #
+        # [1, 1, 0, 0] we change to [0, 1, 0, 0]
+        # can get the value by subtracting the previous column
+        for k in xrange(self._nbins-1):
+            ret[:, k] = ret[:, k] - ret[:, k+1]
+        return ret
+
