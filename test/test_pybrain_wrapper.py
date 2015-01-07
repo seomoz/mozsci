@@ -13,7 +13,7 @@ class Testpybrain_wrapper(unittest.TestCase):
                [1, 0],
                [1, 1]])
         y = np.array([0, 1, 1, 0])
-        net = PyBrainNN(learning_rate=learning_rate, maxiterations=10000, lam=0.0, args=(2, 3, 1), kwargs={'fast':True, 'bias':True})
+        net = PyBrainNN(learning_rate=learning_rate, maxiterations=10000, lam=0.0, args=(2, 3, 1), kwargs={'bias':True})
         net.fit(X, y)
 
         return net, X, y
