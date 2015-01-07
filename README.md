@@ -1,14 +1,9 @@
 mozsci
 ======
 
-Data science tools from SEOMoz
+[![Build Status](https://api.travis-ci.org/seomoz/mozsci.png)](https://api.travis-ci.org/seomoz/mozsci.png)
 
-Dependencies:
-    numpy
-    scipy
-    matplotlib
-    cython
+Data science tools from Moz
 
-Includes a optional wrapper for Pybrain neural networks, in `models.pybrain_wrapper`.
-If this is used, Pybrain must also be available.
+See `.travis.yml` and `requirements.txt` for dependencies.
 
