@@ -4,7 +4,6 @@ import numpy as np
 import time
 
 from mozsci import histogram
-import pylab as plt
 
 
 class TestHistogram1D(unittest.TestCase):
@@ -40,19 +39,13 @@ class TestHistogram1D(unittest.TestCase):
 
         # check sampler
         t1 = time.time()
-        samples = h.sample(3e6)
+        samples = h.sample(5e6)
         t2 = time.time()
-        print "Time to sample 1D for 3e6 = " + str(t2 - t1) + " s"
 
-        # TODO: replace this "eye norm" with an actual norm
-        (counts, edges) = plt.histogram(samples, 50, normed=True)
+        (counts, edges) = np.histogram(samples, 50, normed=True)
         centers = 0.5 * (edges[1:] + edges[0:-1])
         actual_pdf = 1.0 / np.sqrt(2.0 * 3.14159) * np.exp(-centers ** 2 / 2.0)
-        fig = plt.figure(1); fig.clf()
-        plt.plot(centers, counts, label="Sample")
-        plt.plot(centers, actual_pdf, label="Actual")
-        plt.legend()
-        fig.show()
+        self.assertTrue(np.allclose(counts, actual_pdf, atol=5e-3))
 
     def test_stratified_sample(self):
         hist = histogram.Histogram1DFast(5, 0, 5)
@@ -61,29 +54,25 @@ class TestHistogram1D(unittest.TestCase):
 
         hist.compute_pdf_cdf()
 
-        # generate a 1e6 size sample
+        # generate a sample
         x = hist.sample(int(hist.bin_count.sum()))
 
-        # now sample the large sample in 2 ways
-        #  uniformly
-        #  stratified
-        sample_size = [500, 300, 100, 98, 2]
+        # now do a stratified sample of the large sample
+        sample_size = [5000, 3000, 1000, 250, 2]
         x_stratified_sample = hist.stratified_sample(x, sample_size)
         hist_check = histogram.Histogram1DFast(5, 0, 5)
         hist_check.update(x_stratified_sample)
 
-        # this "eye norm" too needs to be replaced
-        fig = plt.figure(101)
-        fig.clf()
-        plt.plot(sample_size, 'bo', label='ideal')
-        plt.plot(hist_check.bin_count, 'rx', label='actual sample')
-        plt.legend()
-        plt.title("1D stratified sampling")
-        fig.show()
+        # check that the actual sample distribution matches the expected
+        # one.  We expect a small relative difference in all entries
+        # except the last (where we expect a small absolute difference)
+        self.assertTrue(np.allclose(1.0,
+            hist_check.bin_count[:-1].astype(np.float) / sample_size[:-1],
+            atol=0.10, rtol=0.0))
+        self.assertTrue(abs(hist_check.bin_count[-1] - sample_size[-1]) < 3)
+
 
 if __name__ == "__main__":
     unittest.main()
-
-
 
 
