@@ -9,3 +9,6 @@ mozsci/spearmanr_by_fast.cpp
 
 .coverage
 mozsci/*.so
+
+# vim files
+*.swp
