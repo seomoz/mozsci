@@ -7,3 +7,8 @@ mozsci/spearmanr_by_fast.cpp
 
 *.pyc
 
+.coverage
+mozsci/*.so
+
+# vim files
+*.swp

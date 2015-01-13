@@ -105,7 +105,7 @@ class TestGlm(unittest.TestCase):
             [ (This is k*) -2.53387660e-01  -4.31184391e-01  -1.60095828e-03  -1.43475268e-02
               (This is the intercept) 2.71606920e+00]
         """
-        mydata = np.genfromtxt('data/poissonreg.csv', delimiter=',', skip_header=1)
+        mydata = np.genfromtxt('test/data/poissonreg.csv', delimiter=',', skip_header=1)
         features = mydata[:, 2:5]
 
         Y = mydata[:, 6]

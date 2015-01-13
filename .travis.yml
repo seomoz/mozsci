@@ -1,0 +1,13 @@
+language: python
+python:
+  - 2.7
+script: make test
+virtualenv:
+  system_site_packages: true
+cache:
+  - apt
+  - pip
+install:
+  - sudo sudo apt-get -y install libatlas-base-dev libatlas-dev lib{blas,lapack}-dev python-numpy python-scipy python-matplotlib
+  - pip install -r requirements.txt --use-mirrors
+  - python setup.py build_ext --inplace
