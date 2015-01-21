@@ -3,7 +3,7 @@ A few useful abstractions for input/output variables in machine learning
 """
 from __future__ import absolute_import
 import numpy as np
-from itertools import izip
+from six.moves import zip
 
 
 class Variable(object):
@@ -110,7 +110,7 @@ class ModelDriver(object):
         ret = np.zeros((len(X), nout))
         ind = 0
         indout = 0
-        for variable, dimout in izip(variables, ndimout):
+        for variable, dimout in zip(variables, ndimout):
             if fit:
                 variable.fit(X[:, ind:(ind + variable.ndim)])
             ret[:, indout:(indout + dimout)] = variable.transform(
