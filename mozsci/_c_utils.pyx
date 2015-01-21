@@ -58,3 +58,27 @@ def histogram1d_compute_indices(
         this_index = int((data[i] - mn) / bin_width)
         bin_index[i] = min(max(this_index, 0), bins1)
 
+
+@cython.boundscheck(False)
+@cython.cdivision(True)
+def c_auc_wmw(
+    np.ndarray[np.int64_t, ndim=1] idxp,
+    np.ndarray[np.int64_t, ndim=1] idxn,
+    np.ndarray[np.float64_t, ndim=1] parr,
+    np.ndarray[np.float64_t, ndim=1] warr):
+
+    cdef int i, j
+    cdef double auc = 0.0
+    cdef double sum_weights = 0.0
+    cdef int nidxp = len(idxp)
+    cdef int nidxn = len(idxn)
+    cdef double this_weight
+    for i in range(nidxp):
+        for j in range(nidxn):
+            this_weight = warr[idxp[i]] + warr[idxn[j]]
+            sum_weights += this_weight
+            if parr[idxp[i]] - parr[idxn[j]] > 0.0:
+                auc += this_weight
+
+    return auc / sum_weights
+

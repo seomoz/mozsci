@@ -1,12 +1,11 @@
 """Evaluate model performance including efficient C implementations"""
 from __future__ import absolute_import
 
-
 import numpy as np
-import scipy.weave
 
 from .inputs import mean_std_weighted
 from .spearmanr_by_fast import spearmanr_by
+from ._c_utils import c_auc_wmw
 from six.moves import range
 
 def pearsonr_weighted(x, y, weights=None):
@@ -35,8 +34,8 @@ def auc_wmw_fast(t, p, weights=None):
 
     Returns AUC
     """
-    tarr = np.asarray(t, dtype=np.int)
-    parr = np.asarray(p, dtype=np.float)
+    tarr = np.asarray(t, dtype=np.int).flatten()
+    parr = np.asarray(p, dtype=np.float).flatten()
 
     if len(tarr) != len(parr):
         raise ValueError("t, p: shape mismatch")
@@ -47,30 +46,14 @@ def auc_wmw_fast(t, p, weights=None):
     nidxp = idxp.shape[0]
 
     if weights is not None:
-        warr = np.asarray(weights, dtype=np.float)
+        warr = np.asarray(weights, dtype=np.float).flatten()
     else:
         warr = np.ones(tarr.shape)
 
-    code = """
-        double auc = 0.0;
-        double sum_weights = 0.0;
-        for (int i=0; i < nidxp; i++)
-        {
-            for (int j=0; j < nidxn; j++)
-            {
-                double this_weight = warr(idxp(i)) + warr(idxn(j));
-                sum_weights += this_weight;
-                if (parr(idxp(i)) - parr(idxn(j)) > 0.0)
-                    auc += this_weight;
-                       
-            }
-        }
-        return_val = auc / sum_weights;
-    """
-    auc = scipy.weave.inline(code, ['idxp', 'idxn', 'parr', 'nidxn', 'nidxp', 'warr'],
-                type_converters=scipy.weave.converters.blitz)
+    auc = c_auc_wmw(idxp, idxn, parr, warr)
     if np.isnan(auc):
         auc = 0
+
     return auc
 
 
