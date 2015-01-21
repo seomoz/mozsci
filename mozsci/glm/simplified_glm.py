@@ -1,9 +1,11 @@
+from __future__ import absolute_import
 import numpy as np
 import simplejson as json
 
 from . import regularization
 from . import prob_distributions
 from scipy import optimize
+import six
 
 """
 This module defines a series of simplified glm functions. They are simplified because they use a much simpler way to
@@ -142,7 +144,7 @@ class SimplifiedGlmBase(object):
         load the model from a file or a json block.
         """
 
-        if isinstance(model_file, basestring):
+        if isinstance(model_file, six.string_types):
             params = json.load(open(model_file, 'r'))
         else:
             params = model_file

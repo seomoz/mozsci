@@ -1,6 +1,8 @@
 """Train models in parallel"""
+from __future__ import absolute_import
 
 import numpy as np
+from six.moves import range
 
 class TrainModelCV(object):
     def __init__(self,
@@ -70,7 +72,7 @@ class TrainModelCV(object):
     def _run_kfold(self):
         # do k-fold cross validation
         errors = []
-        for k in xrange(len(self.folds)):
+        for k in range(len(self.folds)):
             train_indices = self.folds[k][0]
             test_indices = self.folds[k][1]
 
@@ -89,7 +91,7 @@ class TrainModelCV(object):
         if type(errors[0]['train']) == dict:
             for k in ['train', 'test']:
                 ret[k] = {}
-                for error_type in errors[0]['train'].keys():
+                for error_type in list(errors[0]['train'].keys()):
                     ret[k][error_type] = np.mean([ele[k][error_type] for ele in errors])
         else:
             for k in ['train', 'test']:

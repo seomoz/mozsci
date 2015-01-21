@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 
 
 # ensemble model selection
@@ -9,6 +11,8 @@
 
 import numpy as np
 import json
+import six
+from six.moves import range
 
 class EnsembleModelSelector(object):
     """Implements
@@ -56,9 +60,9 @@ class EnsembleModelSelector(object):
         indices = np.arange(len(ymodels))
         max_keep = int(self.pbags * len(ymodels))
         nmodels = 0
-        for k in xrange(self.nbags):
+        for k in range(self.nbags):
             if verbose:
-                print("Bagging number %s" % str(k+1))
+                print(("Bagging number %s" % str(k+1)))
             np.random.shuffle(indices)
             ymodels_bagged = np.array(ymodels)[indices[:max_keep]]
             self.select_ensemble(y, ymodels_bagged)
@@ -101,7 +105,7 @@ class EnsembleModelSelector(object):
 
         if early_termination: last_error = np.finfo(np.float).max
         # (2)
-        for k in xrange(self.niter):
+        for k in range(self.niter):
             # find the model that reduces error the most
             # current_prediction is averaged over nmodels
             # need to add in one more as a weighted average
@@ -118,7 +122,7 @@ class EnsembleModelSelector(object):
             current_prediction = current_prediction * (float(nmodels) / (nmodels + 1)) + ymodels[model_to_add].astype(np.float) / float(nmodels + 1)
             nmodels += 1
 
-            print("Iteration %s, error=%s" % (k, errors.min()))
+            print(("Iteration %s, error=%s" % (k, errors.min())))
 
         # pull out the indices of models included in the final ensemble
         self.ensemble_indices = np.arange(len(ymodels))[self.ensemble > 0.5]
@@ -149,7 +153,7 @@ class EnsembleModelSelector(object):
             }
 
         # save to the file
-        if isinstance(fileout, basestring):
+        if isinstance(fileout, six.string_types):
             with open(fileout, 'w') as f:
                 json.dump(model_json, f)
         else:
@@ -163,7 +167,7 @@ class EnsembleModelSelector(object):
         :param model_json: name of the file to read in the json string, or a file object.
         :return: the new object.
         """
-        if isinstance(model_json, basestring):
+        if isinstance(model_json, six.string_types):
             with open(model_json, 'r') as f:
                 model_json = json.load(f)
 
@@ -191,7 +195,7 @@ if __name__ == "__main__":
 
     nmodels = 500
     ymodels = []
-    for k in xrange(nmodels):
+    for k in range(nmodels):
         m = np.random.rand(1) * 5 * (np.random.rand(N) - 0.5) + 5
         b = 3 * (np.random.rand(N) - 0.5) + 4
         thisy = (m * x - b > 0).astype(np.int)
@@ -210,7 +214,7 @@ if __name__ == "__main__":
     fig = plt.figure(1)
     fig.clf()
     plt.scatter(x, y, marker='o', color='r')
-    for k in xrange(40):
+    for k in range(40):
         plt.scatter(x, ymodels[k]+0.01 + k*0.01, marker='s', s=1, color='b')
 
     plt.scatter(x, ypred, marker='x', color='k')

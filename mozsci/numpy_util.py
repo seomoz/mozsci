@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 import numpy as np
 import json
@@ -14,7 +15,7 @@ class NumpyEncoder(json.JSONEncoder):
 def numpy_decoder(dct):
     """Decodes numpy arrays stored as values in a json dictionary
     Use like json.loads(j, object_hook=numpy_decoder)"""
-    for k in dct.keys():
+    for k in list(dct.keys()):
         if isinstance(dct[k], list):
             try:
                 dct[k] = np.asarray(dct[k])

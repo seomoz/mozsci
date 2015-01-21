@@ -1,4 +1,5 @@
 """Evaluate model performance including efficient C implementations"""
+from __future__ import absolute_import
 
 
 import numpy as np
@@ -6,6 +7,7 @@ import scipy.weave
 
 from .inputs import mean_std_weighted
 from .spearmanr_by_fast import spearmanr_by
+from six.moves import range
 
 def pearsonr_weighted(x, y, weights=None):
     """Weighted Pearson correlation coefficient.
@@ -156,7 +158,7 @@ def classification_model_performance(observed, predicted, weight=None):
     if weight is None:
         sum_incorrect = sum(observed != predicted)
     else:
-        sum_incorrect = sum(weight[observed[ii]] for ii in xrange(len(observed)) if observed[ii] != predicted[ii])
+        sum_incorrect = sum(weight[observed[ii]] for ii in range(len(observed)) if observed[ii] != predicted[ii])
 
     return sum_incorrect / float(len(predicted))
 
@@ -173,7 +175,7 @@ def classification_model_performance_matrix(observed, predicted):
 
     perf_2d_array = np.zeros([num_classes] * 2, dtype=int)
 
-    for ii in xrange(len(observed)):
+    for ii in range(len(observed)):
         # in case some algorithms return float numbers.
         predicted_class = int(np.round(predicted[ii]))
         perf_2d_array[observed[ii], predicted_class] += 1
@@ -199,7 +201,7 @@ def classification_model_performance_loss(observed, predicted, loss=None):
     if loss is None:
         loss = default_loss
 
-    total_loss = sum(loss(observed[ii], int(np.round(predicted[ii]))) for ii in xrange(len(observed)))
+    total_loss = sum(loss(observed[ii], int(np.round(predicted[ii]))) for ii in range(len(observed)))
 
     return total_loss
 

@@ -1,6 +1,7 @@
 """
 A few useful abstractions for input/output variables in machine learning
 """
+from __future__ import absolute_import
 import numpy as np
 from itertools import izip
 
@@ -158,14 +159,14 @@ class ModelDriver(object):
         '''
         Return a string representation of this instance
         '''
-        import cPickle
-        return cPickle.dumps(self)
+        import six.moves.cPickle
+        return six.moves.cPickle.dumps(self)
 
     @classmethod
     def loads(cls, string):
         '''
         Return an instance from the serialized string
         '''
-        import cPickle
-        return cPickle.loads(string)
+        import six.moves.cPickle
+        return six.moves.cPickle.loads(string)
 

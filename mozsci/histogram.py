@@ -10,6 +10,7 @@
  function from data, sample from a given distribution,
  plot, serialize to/from a file.
 """
+from __future__ import absolute_import
 
 import numpy as np
 import scipy.weave

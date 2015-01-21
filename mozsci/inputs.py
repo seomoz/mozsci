@@ -1,8 +1,10 @@
 """Input feature manipulation, including normalizations"""
+from __future__ import absolute_import
 
 import numpy as np
 
 from sklearn.preprocessing import StandardScaler
+from six.moves import range
 
 def mean_std_weighted(x, weights=None):
     """Computes weighted mean and standard deviation.
@@ -27,7 +29,7 @@ def mean_std_weighted(x, weights=None):
         if ret['std'] == 0:
             ret['std'] = 1
     else:
-        zero_std = [k for k in xrange(x.shape[1]) if ret['std'][k] < 1e-16]
+        zero_std = [k for k in range(x.shape[1]) if ret['std'][k] < 1e-16]
         for i in zero_std:
             ret['std'][i] = 1.0
 
@@ -114,7 +116,7 @@ class BucketTransformer(object):
         #
         # [1, 1, 0, 0] we change to [0, 1, 0, 0]
         # can get the value by subtracting the previous column
-        for k in xrange(self._nbins-1):
+        for k in range(self._nbins-1):
             ret[:, k] = ret[:, k] - ret[:, k+1]
         return ret
 
