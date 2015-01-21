@@ -24,18 +24,19 @@
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
-import numpy
+import numpy as np
 
 
 # for fast spearman
 ext_modules = [Extension('mozsci.spearmanr_by_fast',
     sources=["mozsci/spearmanr_by_fast.pyx", "mozsci/cspearmanr_by_fast.cc"],
-    include_dirs = [numpy.get_include()],
-    language="c++",
-    )]
-
-
-
+    include_dirs = [np.get_include()],
+    language="c++"),
+    Extension('mozsci._c_utils',
+        sources=["mozsci/_c_utils.pyx"],
+        include_dirs = [np.get_include()],
+        language="c++"),
+    ]
 
 setup(
     name             = 'mozsci',

@@ -4,7 +4,7 @@ clean:
 	# And all of our pyc files
 	rm -f mozsci/*.pyc test/*.pyc
 	# All compiled files
-	rm -f mozsci/*.so mozsci/spearmanr_by_fast.cpp 
+	rm -f mozsci/*.so mozsci/spearmanr_by_fast.cpp mozsci/_c_utils.cpp
 	# And lastly, .coverage files
 	rm -f .coverage
 
