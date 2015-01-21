@@ -42,7 +42,7 @@ setup(
     version          = '0.0.1',
     description      = 'Data science tools from SEOmoz',
     author           = 'Matt Peters',
-    author_email     = 'matt@seomoz.org',
+    author_email     = 'matt@moz.com',
     url              = 'http://github.com/seomoz/mozsci',
     packages         = ['mozsci', 'mozsci.models', 'mozsci.glm'],
     license          = 'MIT',
@@ -55,6 +55,8 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
-        'Intended Audience :: Science/Research'
+        'Intended Audience :: Science/Research',
+        'Programming Language :: Python :: 2 :: Only',
+        'Programming Language :: Python :: 2.7'
         ],
 )
