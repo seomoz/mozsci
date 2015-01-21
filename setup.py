@@ -26,8 +26,6 @@ from distutils.extension import Extension
 from Cython.Distutils import build_ext
 import numpy as np
 
-
-# for fast spearman
 ext_modules = [Extension('mozsci.spearmanr_by_fast',
     sources=["mozsci/spearmanr_by_fast.pyx", "mozsci/cspearmanr_by_fast.cc"],
     include_dirs = [np.get_include()],
@@ -38,9 +36,12 @@ ext_modules = [Extension('mozsci.spearmanr_by_fast',
         language="c++"),
     ]
 
+with open('requirements.txt', 'r') as fin:
+    requires = fin.read().strip().split('\n')
+
 setup(
     name             = 'mozsci',
-    version          = '0.0.1',
+    version          = '0.9.0',
     description      = 'Data science tools from SEOmoz',
     author           = 'Matt Peters',
     author_email     = 'matt@moz.com',
@@ -50,6 +51,7 @@ setup(
     platforms        = 'Posix; MacOS X',
     cmdclass         = {'build_ext': build_ext},
     ext_modules      = ext_modules,
+    install_requires = requires,
     classifiers      = [
         'License :: OSI Approved :: MIT License',
         'Development Status :: 2 - Pre-Alpha',
@@ -57,7 +59,8 @@ setup(
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Intended Audience :: Science/Research',
-        'Programming Language :: Python :: 2 :: Only',
-        'Programming Language :: Python :: 2.7'
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         ],
 )
