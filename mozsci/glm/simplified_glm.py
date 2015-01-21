@@ -48,7 +48,8 @@ class SimplifiedGlmBase(object):
             np.random.seed(4559)
 
         if initialize_params is None:
-            self.initialize_params = np.zeros
+            #self.initialize_params = np.zeros
+            self.initialize_params = np.random.rand
         else:
             self.initialize_params = initialize_params
 

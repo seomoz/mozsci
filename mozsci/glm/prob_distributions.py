@@ -49,6 +49,7 @@ class Poisson(GlmProbDistBase):
         """
 
         log_miu = np.dot(features, beta)
+        log_miu = np.minimum(log_miu, 5)
         tmp = np.sum(log_miu * y - np.exp(log_miu))
 
         if np.isinf(tmp):
@@ -74,6 +75,8 @@ class Poisson(GlmProbDistBase):
         """
         # setup the values we are going to need.
         log_miu = np.dot(features, beta)
+        # prevent overflows
+        log_miu = np.minimum(log_miu, 5)
         miu = np.exp(log_miu)
         grad_tmp = y - miu
 

@@ -73,7 +73,7 @@ class TestGlm(unittest.TestCase):
         regular = regularization.NullRegularization()
 
         # or we can use regular = regularization.NullRegularization()
-        reg = simplified_glm.PoissonRegression(lam=0)
+        reg = simplified_glm.PoissonRegression(lam=0, maxiter=500)
         reg.fit(features, Y)
 
         # The correct result should be [0.00033, 1.045, 1.351], The last one is the constant.
