@@ -1,9 +1,11 @@
+from __future__ import absolute_import
 
 import unittest
 import numpy as np
 
 from mozsci import evaluation
 from mozsci.inputs import mean_std_weighted
+from six.moves import range
 
 
 class TestAUCFast(unittest.TestCase):
@@ -61,7 +63,7 @@ class Test_precision_recall_f1(unittest.TestCase):
         for y in [self.yactual, self.yactual1]:
             for ypred in [self.ypred, self.ypred1]:
                 prec_rec_f1 = evaluation.precision_recall_f1(y, ypred)
-                for k in xrange(3):
+                for k in range(3):
                     self.assertTrue(abs(actual_prec_rec_f1[k] - prec_rec_f1[k]) < 1e-12)
 
     def test_precision_recall_f1_weighted(self):
@@ -75,7 +77,7 @@ class Test_precision_recall_f1(unittest.TestCase):
             for ypred in [self.ypred, self.ypred1]:
                 for weights in [self.weights, self.weights1]:
                     prec_rec_f1 = evaluation.precision_recall_f1(y, ypred, weights=weights)
-                    for k in xrange(3):
+                    for k in range(3):
                         self.assertTrue(abs(actual_prec_rec_f1[k] - prec_rec_f1[k]) < 1e-12)
 
 

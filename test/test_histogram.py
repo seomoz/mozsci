@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 
 import unittest
 import numpy as np
@@ -33,8 +35,8 @@ class TestHistogram1D(unittest.TestCase):
         out = np.histogram(x, bins=100, range=[-5, 5])
         time3 = time.time()
 
-        print "Time for fast = " + str(time2 - time1) + " s"
-        print "Time for numpy = " + str(time3- time2) + " s"
+        print("Time for fast = " + str(time2 - time1) + " s")
+        print("Time for numpy = " + str(time3- time2) + " s")
 
 
         # check sampler

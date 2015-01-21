@@ -3,3 +3,4 @@ coverage
 Cython>=0.17
 simplejson
 scikit-learn
+six
