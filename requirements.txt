@@ -1,3 +1,6 @@
+numpy
+scipy
+matplotlib
 nose
 coverage
 Cython>=0.17
