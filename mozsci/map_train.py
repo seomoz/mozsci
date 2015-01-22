@@ -91,7 +91,7 @@ class TrainModelCV(object):
         if type(errors[0]['train']) == dict:
             for k in ['train', 'test']:
                 ret[k] = {}
-                for error_type in list(errors[0]['train'].keys()):
+                for error_type in errors[0]['train'].keys():
                     ret[k][error_type] = np.mean([ele[k][error_type] for ele in errors])
         else:
             for k in ['train', 'test']:

@@ -62,7 +62,7 @@ class EnsembleModelSelector(object):
         nmodels = 0
         for k in range(self.nbags):
             if verbose:
-                print(("Bagging number %s" % str(k+1)))
+                print("Bagging number %s" % str(k+1))
             np.random.shuffle(indices)
             ymodels_bagged = np.array(ymodels)[indices[:max_keep]]
             self.select_ensemble(y, ymodels_bagged)

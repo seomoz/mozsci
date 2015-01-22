@@ -65,7 +65,7 @@ class Test_run_train_models(DataTest):
           [LogisticRegression, classification_error, None, (), {'lam':50}]]
 
         errors = run_train_models(2, model_library, X=self.X, y=self.y)
-        for k in list(errors.keys()):
+        for k in errors.keys():
             if re.search("{'lam': 0.5}", k):
                 err_check = errors[k]
 
