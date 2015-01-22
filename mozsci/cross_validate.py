@@ -1,7 +1,10 @@
 """Things to do cross validation"""
+from __future__ import absolute_import
 
 import numpy as np
 from .map_train import TrainModelCV
+import six
+from six.moves import range
 
 def cv_kfold(ntrain, nk, seed=None):
     """k-fold cross validation
@@ -30,15 +33,15 @@ def cv_kfold(ntrain, nk, seed=None):
     r = np.random.rand(ntrain)
     indices = np.arange(ntrain)
     folds = []
-    for k in xrange(nk):
+    for k in range(nk):
         folds.append(indices[np.logical_and(fold_edges[k] <= r, r < fold_edges[k + 1])])
 
     # make training + test arrays
     training_test = []
-    for k in xrange(nk):
+    for k in range(nk):
         training = []
         test = []
-        for i in xrange(nk):
+        for i in range(nk):
             if i != k:
                 training.extend(folds[i])
             else:
@@ -63,7 +66,7 @@ def plot_cv_errors(errors, model, regparm, fignum):
     errors_plot = []
     reg = []
 
-    for desc, err in errors.iteritems():
+    for desc, err in six.iteritems(errors):
         if re.search(model, desc):
             # it corresponds to this model
             # get the regularization parameter
@@ -111,8 +114,8 @@ def learning_curves(model_description, X, y, kfolds=5, fignum=1):
                     X=X[indices][:N, :], y=y[indices][:N],
                     folds=folds)
         errors = trainer.run()
-        test_errors.append(errors[errors.keys()[0]]['test'])
-        train_errors.append(errors[errors.keys()[0]]['train'])
+        test_errors.append(errors[list(errors.keys())[0]]['test'])
+        train_errors.append(errors[list(errors.keys())[0]]['train'])
 
     fig = plt.figure(fignum)
     fig.clf()

@@ -1,7 +1,9 @@
+from __future__ import absolute_import
 
 import unittest
 import numpy as np
 from mozsci import inputs
+from six.moves import range
 
 class Test_mean_std_weightd(unittest.TestCase):
     def test_mean_std(self):
@@ -49,7 +51,7 @@ class TestLogScaledTransformer(unittest.TestCase):
         offset = 2.0
         nsamples = int(1e6)
         samples = np.zeros((nsamples, 2))
-        for k in xrange(2):
+        for k in range(2):
             samples[:, k] = np.random.normal(mean[k], std[k], nsamples)
         exp_samples = np.exp(samples) - offset
 

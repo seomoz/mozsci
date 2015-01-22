@@ -1,8 +1,10 @@
+from __future__ import absolute_import
 
 import unittest
 import numpy as np
 
 from mozsci import pca
+from six.moves import range
 
 class TestLinearPCA(unittest.TestCase):
 
@@ -12,7 +14,7 @@ class TestLinearPCA(unittest.TestCase):
         # make the data
         N = 1000
         data = np.zeros((N, 3))
-        for k in xrange(N):
+        for k in range(N):
             data[k, 0] = (np.random.random() - 0.5) * 5.0 + 2.0
             #data[k, 1] = 3.5 * data[k, 0] + (np.random.random() - 0.5)
             data[k, 1] = (np.random.random() - 0.5) * 5.0
@@ -26,7 +28,7 @@ class TestLinearPCA(unittest.TestCase):
 
         # reconstruct the data from the projection
         data_reconstruct = np.zeros((N, 3))
-        for k in xrange(N):
+        for k in range(N):
             data_reconstruct[k, :] = p.mean + data_proj[k, 0] * p.eigvec[:, 0] + data_proj[k, 1] * p.eigvec[:, 1] + data_proj[k, 2] * p.eigvec[:, 2]
 
         self.assertTrue((np.abs(data_reconstruct - data) < 1.0e-12).all())

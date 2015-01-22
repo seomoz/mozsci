@@ -1,8 +1,8 @@
 """
- Fast 1D, 2D and 3D empirical histograms samplers.
+ Fast 1D empirical histogram sampler.
 
  Efficently compute binned histograms from large streaming
- data sets, using scipy.weave to speed up the slow steps.
+ data sets, using cython to speed up the slow steps.
  The speed is typically 10-100X faster then the corresponding numpy
  routine.
 
@@ -10,9 +10,12 @@
  function from data, sample from a given distribution,
  plot, serialize to/from a file.
 """
+from __future__ import absolute_import
 
 import numpy as np
-import scipy.weave
+
+from ._c_utils import histogram1d_update, histogram1d_update_counts
+from ._c_utils import histogram1d_compute_indices
 
 class Histogram1DFast(object):
     """A fast 1D histogram sampler
@@ -36,22 +39,12 @@ class Histogram1DFast(object):
             if updated values are needed, client should call self.compute_pdf_cdf()
             before accessing.  TODO: .pdf and .cdf attributes that lazily
             compute/return based on the value of self._pdf_updated"""
-        ndata = len(data)
         bin_count = self.bin_count
         bin_width = self.bin_width
         mn = self.mn
         bins1 = self.bins - 1
-        code = """
-            for (int i = 0; i < ndata; i++)
-            {
-                int bin_index = floor((data(i) - mn) / bin_width);
-                bin_index = std::min(std::max(bin_index, 0), bins1);
-                bin_count(bin_index)++;
-            }
-            """
-        scipy.weave.inline(code,
-                ['ndata', 'bin_count', 'bin_width', 'data', 'bins1', 'mn'],
-                type_converters=scipy.weave.converters.blitz)
+        histogram1d_update(data.astype(np.float), bin_count, bin_width,
+            bins1, mn)
         self._pdf_updated = False
 
     def plot(self, ti, fignum):
@@ -85,17 +78,8 @@ class Histogram1DFast(object):
         bin_width = float(self.bin_width)
         mn = float(self.mn)
         bins1 = self.bins - 1
-        code = """
-            for (int i = 0; i < ndata; i++)
-            {
-                int bin_index = floor((data(i) - mn) / bin_width);
-                bin_index = std::min(std::max(bin_index, 0), bins1);
-                bin_count(bin_index) += counts(i);
-            }
-            """
-        scipy.weave.inline(code,
-                ['ndata', 'bin_count', 'bin_width', 'data', 'bins1', 'mn', 'counts'],
-                type_converters=scipy.weave.converters.blitz)
+        histogram1d_update_counts(data.astype(np.float), bin_count, bin_width,
+            bins1, mn, counts.astype(np.float))
         self._pdf_updated = False
 
     def compute_indices(self, data):
@@ -106,16 +90,8 @@ class Histogram1DFast(object):
         bins1 = self.bins - 1
         bin_index = np.zeros(data.shape, np.int)
         bin_width = self.bin_width
-        code = """
-            for (int i = 0; i < ndata; i++)
-            {
-                int this_index = floor((data(i) - mn) / bin_width);
-                bin_index(i) = std::min(std::max(this_index, 0), bins1);
-            }
-            """
-        scipy.weave.inline(code,
-                ['ndata', 'bin_width', 'data', 'bins1', 'mn', 'bin_index'],
-                type_converters=scipy.weave.converters.blitz)
+        histogram1d_compute_indices(data.astype(np.float), bin_width,
+            bins1, mn, bin_index)
         return bin_index
 
 

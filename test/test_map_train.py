@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 import unittest
 import numpy as np
@@ -34,8 +35,8 @@ class TestTrainModelCV(DataTest):
         loaded_model_error = classification_error(self.y, trained_model.predict(self.X))
 
         # check the errors
-        self.assertTrue(np.abs(errors[errors.keys()[0]]['train'] - 0.06) < 1e-12)
-        self.assertTrue(np.abs(errors[errors.keys()[0]]['train'] - loaded_model_error) < 1e-12)
+        self.assertTrue(np.abs(errors[list(errors.keys())[0]]['train'] - 0.06) < 1e-12)
+        self.assertTrue(np.abs(errors[list(errors.keys())[0]]['train'] - loaded_model_error) < 1e-12)
 
     def test_aggregate_error(self):
         # test an aggregate error function (that returns more than one value)
@@ -43,8 +44,8 @@ class TestTrainModelCV(DataTest):
                        X=self.X, y=self.y, Xtest=self.X[:50, :], ytest=self.y[:50])
         errors = trainer.run()
 
-        self.assertTrue(np.abs(errors[errors.keys()[0]]['train']['accuracy'] - 0.06) < 1e-8)
-        self.assertTrue(np.abs(errors[errors.keys()[0]]['train']['auc'] - 0.99310661764705888) < 1e-8)
+        self.assertTrue(np.abs(errors[list(errors.keys())[0]]['train']['accuracy'] - 0.06) < 1e-8)
+        self.assertTrue(np.abs(errors[list(errors.keys())[0]]['train']['auc'] - 0.99310661764705888) < 1e-8)
 
 
     def test_kfold_cv(self):
@@ -52,8 +53,8 @@ class TestTrainModelCV(DataTest):
                        X=self.X, y=self.y, folds=self.folds)
         errors = trainer.run()
 
-        self.assertTrue(np.abs(errors[errors.keys()[0]]['train'] - 0.063340259665816398) < 1e-12)
-        self.assertTrue(np.abs(errors[errors.keys()[0]]['test'] - 0.049633305762338022)< 1e-12)
+        self.assertTrue(np.abs(errors[list(errors.keys())[0]]['train'] - 0.063340259665816398) < 1e-12)
+        self.assertTrue(np.abs(errors[list(errors.keys())[0]]['test'] - 0.049633305762338022)< 1e-12)
 
 
 class Test_run_train_models(DataTest):

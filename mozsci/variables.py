@@ -1,8 +1,9 @@
 """
 A few useful abstractions for input/output variables in machine learning
 """
+from __future__ import absolute_import
 import numpy as np
-from itertools import izip
+from six.moves import zip
 
 
 class Variable(object):
@@ -109,7 +110,7 @@ class ModelDriver(object):
         ret = np.zeros((len(X), nout))
         ind = 0
         indout = 0
-        for variable, dimout in izip(variables, ndimout):
+        for variable, dimout in zip(variables, ndimout):
             if fit:
                 variable.fit(X[:, ind:(ind + variable.ndim)])
             ret[:, indout:(indout + dimout)] = variable.transform(
@@ -158,14 +159,14 @@ class ModelDriver(object):
         '''
         Return a string representation of this instance
         '''
-        import cPickle
-        return cPickle.dumps(self)
+        import six.moves.cPickle
+        return six.moves.cPickle.dumps(self)
 
     @classmethod
     def loads(cls, string):
         '''
         Return an instance from the serialized string
         '''
-        import cPickle
-        return cPickle.loads(string)
+        import six.moves.cPickle
+        return six.moves.cPickle.loads(string)
 

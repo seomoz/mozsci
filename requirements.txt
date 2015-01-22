@@ -1,6 +1,9 @@
+numpy
+scipy
+matplotlib
 nose
 coverage
 Cython>=0.17
 simplejson
-pybrain==0.3.0
 scikit-learn
+six

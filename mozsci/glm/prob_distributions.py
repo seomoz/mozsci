@@ -3,6 +3,8 @@ This module provides all the probability distributions that the simplified gener
 A better name might be likelihood. We will provide the eval, eval_gradient, and eval_hessian for the
 log likelihood here. Note, we do not add the negative here. That should be done by the caller.
 """
+from __future__ import absolute_import
+from __future__ import print_function
 
 ### Attention, there is no special treatment of the constant column here. So before call any method here,
 ### add one columns of 1's to the feature matrix, ex, np.c_[features, np.ones(features.shape[0])]
@@ -47,13 +49,14 @@ class Poisson(GlmProbDistBase):
         """
 
         log_miu = np.dot(features, beta)
+        log_miu = np.minimum(log_miu, 5)
         tmp = np.sum(log_miu * y - np.exp(log_miu))
 
         if np.isinf(tmp):
-            print 'WARNING -- Log likelihood got inf value. It has been replaced by float.max. '
-            print 'max of y * log miu', np.max(y * log_miu)
-            print 'max of  miu', np.max(np.exp(log_miu))
-            print 'max of y ', max(y)
+            print('WARNING -- Log likelihood got inf value. It has been replaced by float.max. ')
+            print('max of y * log miu', np.max(y * log_miu))
+            print('max of  miu', np.max(np.exp(log_miu)))
+            print('max of y ', max(y))
 
             return np.finfo(np.float).max
         else:
@@ -72,12 +75,14 @@ class Poisson(GlmProbDistBase):
         """
         # setup the values we are going to need.
         log_miu = np.dot(features, beta)
+        # prevent overflows
+        log_miu = np.minimum(log_miu, 5)
         miu = np.exp(log_miu)
         grad_tmp = y - miu
 
         gradient = np.sum(features * grad_tmp.reshape(-1,1), axis=0)
         if np.isnan(np.sum(gradient)):
-            print 'Warning--The grad_tmp has nan', gradient
+            print('Warning--The grad_tmp has nan', gradient)
 
         return gradient
 
@@ -101,10 +106,10 @@ class Exponential(GlmProbDistBase):
         tmp = -np.sum(log_miu + y * np.exp(-log_miu))
 
         if np.isinf(tmp):
-            print 'WARNING -- Log likelihood got inf value. It has been replaced by float.max. '
-            print 'max of log miu', np.max(log_miu)
-            print 'max of  y / miu', np.max(y * np.exp(-log_miu))
-            print 'max of y ', max(y)
+            print('WARNING -- Log likelihood got inf value. It has been replaced by float.max. ')
+            print('max of log miu', np.max(log_miu))
+            print('max of  y / miu', np.max(y * np.exp(-log_miu)))
+            print('max of y ', max(y))
 
             return np.finfo(np.float).max
         else:
@@ -121,7 +126,7 @@ class Exponential(GlmProbDistBase):
 
         gradient = -np.sum(features * grad_tmp.reshape(-1,1), axis=0)
         if np.isnan(np.sum(gradient)):
-            print 'Warning--The grad_tmp has nan', gradient
+            print('Warning--The grad_tmp has nan', gradient)
 
         return gradient
 
@@ -163,13 +168,13 @@ class NegativeBinomialWithKstar(GlmProbDistBase):
         tmp = np.sum(subsum + k * ln_exp_k_star + y * log_miu) - np.sum((k + y) * (log_miu + log_1_plus_sth))
 
         if np.isinf(tmp):
-            print 'WARNING -- Log likelihood got inf value. It has been replaced by float.max. '
-            print 'max of subsum', np.max(subsum)
-            print 'max of y * log miu', np.max(y * log_miu)
-            print 'max of (k+y) * log miu and k',  np.max((k + y) * (log_miu + log_1_plus_sth))
-            print 'max of log miu and log 1 puls sth', np.max(log_miu), np.max(log_1_plus_sth)
-            print 'max of y ', max(y)
-            print 'value of  exp and k', k * ln_exp_k_star
+            print('WARNING -- Log likelihood got inf value. It has been replaced by float.max. ')
+            print('max of subsum', np.max(subsum))
+            print('max of y * log miu', np.max(y * log_miu))
+            print('max of (k+y) * log miu and k',  np.max((k + y) * (log_miu + log_1_plus_sth)))
+            print('max of log miu and log 1 puls sth', np.max(log_miu), np.max(log_1_plus_sth))
+            print('max of y ', max(y))
+            print('value of  exp and k', k * ln_exp_k_star)
 
             return np.finfo(np.float).max
         else:
@@ -206,16 +211,16 @@ class NegativeBinomialWithKstar(GlmProbDistBase):
         # test of nan in the gradient calculation.
         if np.isnan(np.sum(grad_tmp)):
             if np.isnan(np.sum(miu)):
-                print 'The miu has nan', miu
-            print 'min of miu + k is ', np.min(miu + k)
-            print 'max of miu + k is ', np.max(miu + k)
-            print 'min of y - miu is ', np.min(y - miu)
-            print 'max of y - miu is ', np.max(y - miu)
-            print 'The grad_tmp has nan', grad_tmp
+                print('The miu has nan', miu)
+            print('min of miu + k is ', np.min(miu + k))
+            print('max of miu + k is ', np.max(miu + k))
+            print('min of y - miu is ', np.min(y - miu))
+            print('max of y - miu is ', np.max(y - miu))
+            print('The grad_tmp has nan', grad_tmp)
 
         gradient_beta = k * np.sum(features * grad_tmp.reshape(-1,1), axis=0)
         if np.isnan(np.sum(gradient_beta)):
-            print 'The grad_tmp has nan', gradient_beta
+            print('The grad_tmp has nan', gradient_beta)
 
         # derivative of k*
         max_y = int(y.max())
@@ -226,7 +231,7 @@ class NegativeBinomialWithKstar(GlmProbDistBase):
         derivative_k = np.sum(subsum + 1.0 + beta_k[0] - (k + y)/(k + miu) - (log_miu + log_1_plus_sth))
 
         if np.isinf(derivative_k):
-            print 'WARNING -- Derivative of kstar got inf value. It has been replaced by float.max. '
+            print('WARNING -- Derivative of kstar got inf value. It has been replaced by float.max. ')
             derivative_k = np.finfo(np.float).max
 
         # Assemble them together!

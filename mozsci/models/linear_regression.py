@@ -1,7 +1,10 @@
+from __future__ import absolute_import
 
 import numpy as np
 from scipy.optimize import fmin_bfgs
 import json
+import six
+from six.moves import range
 
 class LinearRegression(object):
     def __init__(self, lam=1.0):
@@ -61,7 +64,7 @@ class LinearRegression(object):
         '''If a string is provided, it's assumed to be a path to a file
         containing a JSON blob describing the model. Otherwise, it should
         be a dictionary representing the model'''
-        if isinstance(model_file, basestring):
+        if isinstance(model_file, six.string_types):
             params = json.load(open(model_file, 'r'))
         else:
             params = model_file
@@ -102,11 +105,11 @@ class LinearRegression(object):
         error = np.sum(w * x, axis=1) + b - y
         if weights is None:
             gradient[0] = np.sum(error)   # * 1 for bias term
-            for k in xrange(nvars):
+            for k in range(nvars):
                 gradient[k + 1] += np.sum(error * x[:, k])
         else:
             gradient[0] = np.sum(error * weights)   # * 1 for bias term
-            for k in xrange(nvars):
+            for k in range(nvars):
                 gradient[k + 1] += np.sum(weights * error * x[:, k])
 
         gradient *= 2

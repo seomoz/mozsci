@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 # linear PCA
 import json
@@ -5,6 +6,7 @@ import json
 import numpy as np
 
 from .numpy_util import numpy_decoder, NumpyEncoder
+from six.moves import range
 
 class LinearPCA(object):
     """Linear PCA by SVD"""
@@ -71,7 +73,7 @@ class LinearPCA(object):
         fig = plt.figure(fignum)
         fig.clf()
         pct_explain = self._compute_percent_explained()
-        for k in xrange(neig):
+        for k in range(neig):
             plt.plot(self.eigvec[:, k], label=str(k) + " " + str(round(pct_explain[k] * 100)))
         plt.legend()
         fig.show()

@@ -1,6 +1,10 @@
+from __future__ import absolute_import
+from __future__ import print_function
 
 import numpy as np
 import json
+import six
+from six.moves import range
 
 class LogisticRegression(object):
     def __init__(self, lam=1.0):
@@ -49,7 +53,7 @@ class LogisticRegression(object):
 
         params0 = np.zeros(1 + x.shape[1])
         params_opt, loss_opt, info_opt = fmin_l_bfgs_b(_loss_for_optimize, params0, disp=0, **kwargs)
-        print("%s funcalls: %s" % (info_opt['task'], info_opt['funcalls']))
+        print(("%s funcalls: %s" % (info_opt['task'], info_opt['funcalls'])))
 
         self.b = params_opt[0]
         self.w = params_opt[1:]
@@ -67,7 +71,7 @@ class LogisticRegression(object):
         '''If a string is provided, it's assumed to be a path to a file
         containing a JSON blob describing the model. Otherwise, it should
         be a dictionary representing the model'''
-        if isinstance(model_file, basestring):
+        if isinstance(model_file, six.string_types):
             params = json.load(open(model_file, 'r'))
         else:
             params = model_file
@@ -118,12 +122,12 @@ class LogisticRegression(object):
         if weights is None:
             loss += -np.sum(log_like_x_0_1[1]) - np.sum(log_like_x_0_1[0])
             gradient[0] += np.sum(error[0]) + np.sum(error[1])   # * 1 for bias term 
-            for k in xrange(nvars):
+            for k in range(nvars):
                 gradient[k + 1] += np.sum(error[0] * x0[:, k]) + np.sum(error[1] * x1[:, k])
         else:
             loss += -np.sum(weights[1] * log_like_x_0_1[1]) - np.sum(weights[0] * log_like_x_0_1[0])
             gradient[0] += np.sum(error[0] * weights[0]) + np.sum(error[1] * weights[1])
-            for k in xrange(nvars):
+            for k in range(nvars):
                 gradient[k + 1] += ( np.sum(weights[0] * error[0] * x0[:, k]) +
                                      np.sum(weights[1] * error[1] * x1[:, k]) )
         return loss, gradient
