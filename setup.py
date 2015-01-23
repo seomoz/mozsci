@@ -21,7 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from distutils.core import setup
+from setuptools import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
 import numpy as np
@@ -42,9 +42,9 @@ with open('requirements.txt', 'r') as fin:
 setup(
     name             = 'mozsci',
     version          = '0.9.0',
-    description      = 'Data science tools from SEOmoz',
-    author           = 'Matt Peters',
-    author_email     = 'matt@moz.com',
+    description      = 'Data science tools from Moz',
+    author           = 'Moz Data Science',
+    author_email     = 'science@moz.com',
     url              = 'http://github.com/seomoz/mozsci',
     packages         = ['mozsci', 'mozsci.models', 'mozsci.glm'],
     license          = 'MIT',
@@ -54,7 +54,7 @@ setup(
     install_requires = requires,
     classifiers      = [
         'License :: OSI Approved :: MIT License',
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
