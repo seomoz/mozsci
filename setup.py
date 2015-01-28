@@ -41,7 +41,7 @@ with open('requirements.txt', 'r') as fin:
 
 setup(
     name             = 'mozsci',
-    version          = '0.9.0',
+    version          = '0.9.1',
     description      = 'Data science tools from Moz',
     author           = 'Moz Data Science',
     author_email     = 'science@moz.com',
