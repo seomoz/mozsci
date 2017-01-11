@@ -4,7 +4,7 @@
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
+# 'Software'), to deal in the Software without restriction, including
 # without limitation the rights to use, copy, modify, merge, publish,
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
@@ -13,7 +13,7 @@
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
@@ -21,19 +21,37 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from setuptools import setup
+from distutils.core import setup
 from distutils.extension import Extension
-from Cython.Distutils import build_ext
 import numpy as np
 
-ext_modules = [Extension('mozsci.spearmanr_by_fast',
-    sources=["mozsci/spearmanr_by_fast.pyx", "mozsci/cspearmanr_by_fast.cc"],
-    include_dirs = [np.get_include()],
-    language="c++"),
-    Extension('mozsci._c_utils',
-        sources=["mozsci/_c_utils.pyx"],
-        include_dirs = [np.get_include()],
-        language="c++"),
+kwargs = {}
+
+try:
+    from Cython.Distutils import build_ext
+    print('Building from Cython')
+    kwargs['cmdclass'] = {'build_ext': build_ext}
+    ext_modules = [
+        Extension('mozsci.spearmanr_by_fast',
+            sources=['mozsci/spearmanr_by_fast.pyx', 'mozsci/cspearmanr_by_fast.cc'],
+            include_dirs = [np.get_include()],
+            language='c++'),
+        Extension('mozsci._c_utils',
+            sources=['mozsci/_c_utils.pyx'],
+            include_dirs = [np.get_include()],
+            language='c++')
+    ]
+except ImportError:
+    print('Building from C++')
+    ext_modules = [
+        Extension('mozsci.spearmanr_by_fast',
+            sources=['mozsci/spearmanr_by_fast.cpp', 'mozsci/cspearmanr_by_fast.cc'],
+            include_dirs = [np.get_include()],
+            language='c++'),
+        Extension('mozsci._c_utils',
+            sources=['mozsci/_c_utils.cpp'],
+            include_dirs = [np.get_include()],
+            language='c++')
     ]
 
 with open('requirements.txt', 'r') as fin:
@@ -65,4 +83,5 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         ],
+    **kwargs
 )

@@ -11,7 +11,7 @@ install:
   - sudo apt-get -y install libatlas-base-dev libatlas-dev lib{blas,lapack}-dev
   # some conda magic to install numpy, scipy
   # see http://sburns.org/2014/03/28/faster-travis-builds.html
-  - sudo pip install conda
+  - sudo pip install conda==4.3.2
   - conda_deps='pip numpy scipy matplotlib cython scikit-learn'
   - conda create -p $HOME/py --yes $conda_deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH

@@ -1,15 +1,18 @@
+# Python build stuff
+*.pyc
 build/
 dist/
-mozsci.egg-info/
+*.egg-info
+*.so
 
-mozsci/spearmanr_by_fast.cpp
-mozsci/_c_utils.cpp
+# Virtualenv
+venv
 
+# Mac things
+.DS_Store
 
-*.pyc
-
+# Coverage 
 .coverage
-mozsci/*.so
 
 # vim files
 *.swp
